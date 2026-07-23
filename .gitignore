@@ -1,0 +1,6 @@
+# Tauri build artifacts
+src-tauri/target/
+dist/
+
+# Local Claude Code settings (may contain local paths)
+.claude/settings.local.json
