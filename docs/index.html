@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blatt — Your CV. One file. Yours forever.</title>
 <meta name="description" content="Blatt is a free, offline résumé builder that lives in a single HTML file. No account, no server, no tracking. Your data stays yours.">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#2c3e6b">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
 
 <!-- Open Graph -->
@@ -14,41 +16,22 @@
 <meta property="og:url" content="https://leandrorsampaio.github.io/Blatt/">
 
 <style>
+  /* Light-only — mirrors the Blatt app's light design and its default blue (#2c3e6b) */
   :root {
+    color-scheme: light;
     --bg: #ffffff;
-    --bg-alt: #f6f7f9;
+    --bg-alt: #f5f7fa;        /* soft blue-tinted grey */
     --fg: #16181d;
     --fg-soft: #565b66;
-    --accent: #2c3e6b;
+    --accent: #2c3e6b;        /* Blatt default --color-blue */
+    --accent-strong: #223056; /* darker blue for hover/depth */
+    --accent-soft: #eef1f7;   /* very light blue wash */
     --accent-fg: #ffffff;
     --border: #e6e8ec;
     --card: #ffffff;
-    --shadow: 0 1px 3px rgba(16,24,40,.06), 0 8px 24px rgba(16,24,40,.05);
+    --shadow: 0 1px 3px rgba(44,62,107,.06), 0 8px 24px rgba(44,62,107,.06);
     --radius: 14px;
     --maxw: 1080px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0e1013;
-      --bg-alt: #14171c;
-      --fg: #f2f4f7;
-      --fg-soft: #a2a9b4;
-      --accent: #7d95d4;
-      --accent-fg: #0e1013;
-      --border: #23272e;
-      --card: #14171c;
-      --shadow: 0 1px 3px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0e1013; --bg-alt: #14171c; --fg: #f2f4f7; --fg-soft: #a2a9b4;
-    --accent: #7d95d4; --accent-fg: #0e1013; --border: #23272e; --card: #14171c;
-    --shadow: 0 1px 3px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
-  }
-  :root[data-theme="light"] {
-    --bg: #ffffff; --bg-alt: #f6f7f9; --fg: #16181d; --fg-soft: #565b66;
-    --accent: #2c3e6b; --accent-fg: #ffffff; --border: #e6e8ec; --card: #ffffff;
-    --shadow: 0 1px 3px rgba(16,24,40,.06), 0 8px 24px rgba(16,24,40,.05);
   }
 
   * { box-sizing: border-box; }
@@ -88,7 +71,7 @@
   }
   .btn:active { transform: translateY(1px); }
   .btn-primary { background: var(--accent); color: var(--accent-fg); }
-  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-primary:hover { background: var(--accent-strong); }
   .btn-ghost { background: transparent; color: var(--fg); border-color: var(--border); }
   .btn-ghost:hover { background: var(--bg-alt); }
   .btn-sm { padding: 8px 16px; font-size: 14px; }
