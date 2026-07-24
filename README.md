@@ -11,7 +11,7 @@
 
 **Blatt** (German for *"sheet of paper"*) is a self-hosted résumé/CV builder that lives in a **single HTML file**. One sheet, one file — open it in any browser, fill in your details, and export a clean A4 PDF. No sign-up, no server, no build step, no tracking. Your data never leaves your computer.
 
-> 🔗 **[Website](https://leandrorsampaio.github.io/Blatt/)** · **[Download](https://github.com/leandrorsampaio/Blatt/archive/refs/heads/main.zip)**
+> 🔗 **[Website](https://leandrorsampaio.github.io/Blatt/)** · **[Download](https://github.com/leandrorsampaio/Blatt/archive/refs/heads/main.zip)** · **[Sample CV (PDF)](https://leandrorsampaio.github.io/Blatt/CV_DEMO.pdf)**
 
 ---
 
