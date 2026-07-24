@@ -498,6 +498,10 @@
   }
 
   @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     html, body {
       width: 210mm;
       height: 297mm;
@@ -4946,6 +4950,9 @@ function printCV() {
   html += styles;
   html += '<style>';
   html += ':root{' + cssVars + '}';
+  /* Force background colours (blue bar, sidebar, headings) to print even when
+     the browser's "Background graphics" option is off — needed for the ATS export */
+  html += '*{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}';
   html += '@page{size:A4;margin:0}';
   html += 'html,body{margin:0 !important;padding:0 !important;background:white !important;width:210mm !important;height:auto !important;overflow:visible !important}';
   html += '.page,.page-extra{display:flex !important;flex-direction:column;width:210mm;height:297mm;overflow:hidden;box-shadow:none !important;margin:0;page-break-after:always}';
