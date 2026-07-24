@@ -11,8 +11,11 @@
 ## Project Structure
 
 ```
-cv.html              ← The product: open this in a browser (HTML + CSS + JS, ~3000 lines)
-CLAUDE.md            ← This file (project context for AI assistants)
+cv.html              ← The product: open this in a browser (HTML + CSS + JS)
+AGENTS.md            ← This file (project context for AI assistants)
+README.md            ← Public documentation
+LICENSE              ← MIT
+docs/                ← Marketing site (GitHub Pages) + sample CV PDF
 src/
   cv-data.md         ← Source CV content in structured Markdown
   cv-template.md     ← Blank template showing the Markdown format
@@ -21,7 +24,7 @@ src/
     Google_Shape_*.jpeg ← Decorative/logo assets
 ```
 
-**Root rule:** The project root should only contain `cv.html`, `CLAUDE.md`, and the `src/` folder (plus git/config dotfiles). All other files go inside `src/`.
+**Root rule:** Keep the root lean — the product (`cv.html`), the standard OSS files (`README.md`, `LICENSE`, `AGENTS.md`), and the `docs/` + `src/` folders (plus git/config dotfiles). Everything else belongs inside `src/` or `docs/`.
 
 ## Architecture
 
