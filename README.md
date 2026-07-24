@@ -3,6 +3,7 @@
 <p align="center"><em>Your CV. One file. Yours forever.</em></p>
 
 <p align="center">
+  <a href="https://github.com/leandrorsampaio/Blatt/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/leandrorsampaio/Blatt?color=2c3e6b"></a>
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
   <img alt="Single file" src="https://img.shields.io/badge/build-single%20HTML%20file-success">
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-success">
@@ -11,7 +12,7 @@
 
 **Blatt** (German for *"sheet of paper"*) is a self-hosted résumé/CV builder that lives in a **single HTML file**. One sheet, one file — open it in any browser, fill in your details, and export a clean A4 PDF. No sign-up, no server, no build step, no tracking. Your data never leaves your computer.
 
-> 🔗 **[Website](https://leandrorsampaio.github.io/Blatt/)** · **[Download](https://github.com/leandrorsampaio/Blatt/archive/refs/heads/main.zip)** · **[Sample CV (PDF)](https://leandrorsampaio.github.io/Blatt/CV_DEMO.pdf)**
+> 🔗 **[Website](https://leandrorsampaio.github.io/Blatt/)** · **[Download cv.html](https://github.com/leandrorsampaio/Blatt/releases/latest/download/cv.html)** · **[Releases](https://github.com/leandrorsampaio/Blatt/releases/latest)** · **[Sample CV (PDF)](https://leandrorsampaio.github.io/Blatt/CV_DEMO.pdf)**
 
 ---
 
@@ -30,7 +31,7 @@
 
 ## Quick start
 
-1. **[Download the ZIP](https://github.com/leandrorsampaio/Blatt/archive/refs/heads/main.zip)** and extract it.
+1. **[Download `cv.html`](https://github.com/leandrorsampaio/Blatt/releases/latest/download/cv.html)** (one self-contained file).
 2. Double-click **`cv.html`** to open it in your browser.
 3. Click the **Editor** tab, replace the sample content with yours.
 4. Adjust the look in the **Format** panel on the left.
