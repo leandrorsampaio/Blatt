@@ -1,0 +1,19 @@
+# Blatt server on Cloudflare Workers -- setup steps in src/server/README.md
+name = "blatt"
+main = "worker.mjs"
+compatibility_date = "2025-09-01"
+
+# cv.html is bundled into the worker as text
+rules = [{ type = "Text", globs = ["**/*.html"], fallthrough = false }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "blatt"
+database_id = "PASTE-YOUR-DATABASE-ID-HERE"   # printed by: npx wrangler d1 create blatt
+
+# Settings are secrets, not plain vars -- set each one with:
+#   npx wrangler secret put GOOGLE_CLIENT_ID
+#   npx wrangler secret put GOOGLE_CLIENT_SECRET
+#   npx wrangler secret put ALLOWED_EMAIL
+#   npx wrangler secret put SESSION_SECRET
+# Optional, only for a custom domain:  npx wrangler secret put PUBLIC_URL

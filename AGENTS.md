@@ -22,6 +22,12 @@ src/
   assets/
     photo.jpeg       ← Profile photo
     Google_Shape_*.jpeg ← Decorative/logo assets
+  server/            ← Optional self-hosting server (see "Server mode")
+    core.mjs         ← Platform-neutral server: Google sign-in, sessions, data API
+    node/            ← Node adapter (file storage) + Dockerfile
+    cloudflare/      ← Workers adapter (D1 storage) + wrangler.toml
+    test/            ← node --test src/server/test/server.test.mjs
+    README.md        ← Self-hosting guide (end-user facing)
 ```
 
 **Root rule:** Keep the root lean — the product (`cv.html`), the standard OSS files (`README.md`, `LICENSE`, `AGENTS.md`), and the `docs/` + `src/` folders (plus git/config dotfiles). Everything else belongs inside `src/` or `docs/`.
@@ -49,6 +55,7 @@ src/
 | PDF | `confirmDownload()` via html2pdf.js | -- |
 | UI | Tab switching, fit-to-screen, page nav, modals, keyboard shortcuts | `fitted`, `showingTemplate`, `currentPage` |
 | Auto-save | Debounced save to localStorage (1.5s) | `autoSaveTimer` |
+| Server sync | Mirrors all `cv-*` localStorage keys to a Blatt server, only when one answers `api/data` | `state.sync` |
 
 ### How it works
 
@@ -119,6 +126,28 @@ and therefore travel with a **design** preset, not with the content. Keys listed
 `PHOTO_FORMAT_KEYS` change the CV structurally and re-run `renderPhoto()` rather
 than setting a CSS variable.
 
+## Server mode (optional self-hosting)
+
+The same `cv.html` can be served by the server in `src/server/`: one person, behind a
+Google sign-in, with their data synced across devices. Served as a file or from plain
+static hosting, nothing changes -- the sync code stays inert.
+
+**Server (`src/server/core.mjs`):** zero dependencies, Web-standard APIs only (Request/
+Response, fetch, WebCrypto), so it runs on Cloudflare Workers, Node 20+, Deno, Bun.
+Adapters supply only storage (`get()` / compare-and-swap `put(baseRev, rec)`) and the
+`cv.html` text. Sign-in is Google OAuth (authorization code + PKCE) for exactly one
+`ALLOWED_EMAIL`; the session is an HMAC-signed HttpOnly cookie. Everything -- the app page
+included -- requires the session. `PUT api/data` additionally requires the
+`X-Blatt-Sync: 1` header (CSRF). Run the tests after any change to it.
+
+**Client (SERVER SYNC section of `cv.html`):** localStorage stays the working copy. The
+synced unit is a snapshot of every localStorage key starting with `cv-`, so **new
+persistent state must use a `cv-` key to sync, and UI-only state must not**. The
+`blatt-sync` key holds `{ rev, hash }` of the last state agreed with the server.
+`syncPoll()` checks every 3s and pushes once changes settle; `syncReconcile()` decides
+push / pull / conflict; pulling replaces the `cv-*` keys and reloads the page rather
+than re-initialising in place. Signing out clears the `cv-*` keys from that browser.
+
 ## CSS Variable System
 
 All visual formatting is controlled via CSS custom properties on `:root`:
@@ -136,7 +165,7 @@ These are not bugs -- the app works well -- but they'll need attention as featur
 2. **Global state**: ~10 global variables manage app state. Plan: consolidate into a single `state` object.
 3. **Full editor re-render on every change**: `renderEditor()` rebuilds entire DOM via `innerHTML`, losing cursor position. Plan: targeted DOM updates.
 4. **HTML string concatenation**: Both renderer and editor build HTML via `html +=`. Works but fragile at scale.
-5. **No tests**: Parser and renderer have no test coverage.
+5. **No tests**: Parser and renderer have no test coverage (the optional server in `src/server/` does).
 
 ## Roadmap & Goals
 
@@ -156,10 +185,11 @@ These are not bugs -- the app works well -- but they'll need attention as featur
 - The app is already a web app, Tauri just provides a native window + system APIs
 - Not intended for mobile -- desktop only
 
-### Distant future: Web deployment
-- Host the app online as a web app
-- localStorage persistence maps naturally to a backend API
-- Preset import/export JSON format can become the API payload
+### Done: Self-hosting (single user)
+- `src/server/`: the same `cv.html` behind a Google sign-in on Cloudflare Workers, Docker or Node, synced across devices (see "Server mode")
+
+### Distant future: Hosted web app
+- A multi-user hosted service (per-user storage, sign-up) built on the same data API
 - Service worker for offline-first when hosted
 
 ## Language
@@ -178,6 +208,7 @@ The sample CV content ships with a fictional profile. The UI labels in the HTML 
 - No build tools, bundlers, or package managers (yet -- see roadmap)
 - No runtime network access: the Open Sans font and html2pdf.js are embedded inline in `cv.html`
 - The embedded Open Sans must stay **static** instances (one file per weight/style), never the Google Fonts variable font: Chrome's print-to-PDF embeds variable fonts as Type 3, which ATS parsers and upload virus scanners handle badly. Check with `pdffonts` -- the text PDF should list `CID TrueType`, not `Type 3`
-- All state is in localStorage -- no backend
+- All state is in localStorage -- no backend required (the optional server in `src/server/` only mirrors it)
+- The server has no package.json and no npm dependencies; only Cloudflare deployers use `npx wrangler`
 - Target: all modern browsers (Chrome, Firefox, Safari, Edge)
 - The `.claude/settings.local.json` allows bash commands for: `brew`, `python3`, `pip3`, `pdftotext`

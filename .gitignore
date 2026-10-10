@@ -4,3 +4,8 @@ dist/
 
 # Local Claude Code settings (may contain local paths)
 .claude/settings.local.json
+
+# Self-hosting server: personal CV data and local Cloudflare state
+src/server/node/data/
+src/server/cloudflare/.wrangler/
+.dev.vars

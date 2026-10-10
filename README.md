@@ -53,6 +53,17 @@ That's it. Your work auto-saves to your browser as you type.
 - **Fit-to-screen** and **page navigation** for comfortable editing.
 - **Keyboard shortcuts** — `Ctrl`/`Cmd`+`S` to save, `Ctrl`/`Cmd`+`P` to export.
 - **Print-optimized** — clean output with all UI hidden.
+- **Optional self-hosting** — run the same `cv.html` on your own server behind a Google sign-in, and your CV follows you across devices.
+
+---
+
+## Self-hosting (optional)
+
+Want your CV on every device instead of in one browser? Host Blatt on your own server: **Cloudflare Workers** (free tier), **Docker**, or any machine with **Node.js**. You sign in with Google and only your account gets in. Edits save to your server automatically, and if two devices change it at the same time, Blatt asks which version to keep.
+
+It's the same `cv.html`, with no fork and no build step. Opened as a file, it still works fully offline.
+
+**→ [Self-hosting guide](src/server/README.md)**
 
 ---
 
@@ -90,7 +101,7 @@ Detail: Led the redesign of the core product.
 
 ## Tech & architecture
 
-The whole application is one `cv.html` file (~5,000 lines: CSS + HTML + vanilla JS), with the CV content and the PDF library embedded inline. The only pieces bundled are a self-contained copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime.**
+The whole application is one `cv.html` file (~5,000 lines: CSS + HTML + vanilla JS), with the CV content and the PDF library embedded inline. The only pieces bundled are a self-contained copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime** (when self-hosted, it talks only to your own server).
 
 Source assets live in `src/`:
 
@@ -103,6 +114,7 @@ src/
   cv-data.md         ← Source CV content (Markdown)
   cv-template.md     ← Blank template showing the format
   assets/            ← Photo, logos, bundled html2pdf.js
+  server/            ← Optional self-hosting server (Cloudflare / Node / Docker)
 ```
 
 > **Roadmap:** a small build step that splits `cv.html` into `src/css`, `src/js`, `src/html` modules and re-concatenates them into the single distributable file — without ever breaking the "just open the file" model.
