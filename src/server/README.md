@@ -51,17 +51,15 @@ You need [Node.js](https://nodejs.org/) 20+ on your computer and a free [Cloudfl
 git clone https://github.com/leandrorsampaio/Blatt.git
 cd Blatt/src/server/cloudflare
 
-# A2. Log in and create the database (one row: your Blatt data)
+# A2. Log in to Cloudflare (opens your browser)
 npx wrangler login
-npx wrangler d1 create blatt
-```
 
-Copy the `database_id` it prints into `wrangler.toml`, replacing `PASTE-YOUR-DATABASE-ID-HERE`.
-
-```sh
-# A3. Deploy — prints your address, e.g. https://blatt.<your-subdomain>.workers.dev
+# A3. Deploy — creates the "blatt" database on the first run and prints
+#     your address, e.g. https://blatt.<your-subdomain>.workers.dev
 npx wrangler deploy
 ```
+
+Until the settings below are in place, the address shows a page listing what's missing. That's expected.
 
 Now finish [step 1](#1-create-the-google-sign-in-client) with that address, then set the settings as secrets:
 

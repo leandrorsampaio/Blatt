@@ -6,10 +6,11 @@ compatibility_date = "2025-09-01"
 # cv.html is bundled into the worker as text
 rules = [{ type = "Text", globs = ["**/*.html"], fallthrough = false }]
 
+# No database_id needed: the first `npx wrangler deploy` creates the "blatt"
+# database in your account and reuses it on every later deploy.
 [[d1_databases]]
 binding = "DB"
 database_name = "blatt"
-database_id = "PASTE-YOUR-DATABASE-ID-HERE"   # printed by: npx wrangler d1 create blatt
 
 # Settings are secrets, not plain vars -- set each one with:
 #   npx wrangler secret put GOOGLE_CLIENT_ID
