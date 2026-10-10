@@ -44,6 +44,7 @@ src/
 | Renderer | `renderCV()`, `renderHeader()`, `renderSidebarSection()`, `renderMainSection()` | `currentMD`, `currentName` |
 | Editor | `buildEditor()`, `renderEditor()`, `editorToMD()` + all editor helpers | `editorData`, `editorDirty` |
 | Format | `FORMAT_SCHEMA`, `applyFormat()`, `buildDrawerUI()`, format change handlers | `currentFormat` |
+| Photo | One stored photo: crop stage, B&W, `renderPhoto()` | `photo`, `photoImg` |
 | Presets | Format presets + content presets (localStorage CRUD) | -- |
 | PDF | `confirmDownload()` via html2pdf.js | -- |
 | UI | Tab switching, fit-to-screen, page nav, modals, keyboard shortcuts | `fitted`, `showingTemplate`, `currentPage` |
@@ -53,10 +54,10 @@ src/
 
 1. **Markdown parser** (`parseMD()`) reads structured MD into a data object with header, sidebar sections, and main sections
 2. **Renderers** convert parsed data into HTML for a pixel-perfect A4 layout
-3. **Two views**: Preview (live A4 page) and Editor (form-based editing)
+3. **Four tabs**: Preview (live A4 page), Editor (form-based editing), Photo, Configuration
 4. **Format panel** (left sidebar): Real-time CSS variable controls for colors, fonts, spacing, layout
 5. **Preset system**: Save/load/import/export both format presets and content presets (localStorage)
-6. **PDF export**: Uses html2pdf.js (CDN) via browser print dialog
+6. **PDF export**: Image PDF via an inline copy of html2pdf.js, plus an ATS-friendly export via the browser print dialog
 
 ## Markdown Format
 
@@ -97,6 +98,26 @@ Date: ...
 - **Auto-save**: Debounced auto-save to localStorage (1.5s delay)
 - **Keyboard shortcuts**: Ctrl+S (save), Ctrl+P (download PDF)
 - **Print-optimized**: `@media print` rules hide UI and show all pages
+- **Photo**: one photo per browser, page 1 only, in two placements (square in the sidebar, circle in the header corner)
+
+## Photo
+
+Blatt stores exactly one photo, under the `cv-photo` localStorage key, shared by
+every CV version (a Blatt backup export carries it along). The record holds two
+data URLs: `original` (the upload, downscaled to a 900px long edge) and `image`
+(the framed 1:1 result actually painted on the CV).
+
+Framing and black & white are **baked into `image` through a canvas**, not applied
+as CSS filters -- the PDF exporter rasterises the page with html2canvas, which does
+not reproduce CSS filters reliably. For the same reason the photo is painted as a
+`background-image` on a div rather than an `<img>` with `object-fit`.
+
+The image is always square; each placement crops it further with `background-size:
+cover` centred, which is what makes the size slider crop evenly from the edges.
+Placement, size, border and border width live in `FORMAT_SCHEMA` (group `Photo`)
+and therefore travel with a **design** preset, not with the content. Keys listed in
+`PHOTO_FORMAT_KEYS` change the CV structurally and re-run `renderPhoto()` rather
+than setting a CSS variable.
 
 ## CSS Variable System
 
@@ -111,7 +132,7 @@ All visual formatting is controlled via CSS custom properties on `:root`:
 
 These are not bugs -- the app works well -- but they'll need attention as features grow:
 
-1. **Single-file monolith (~3000 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
+1. **Single-file monolith (~6300 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
 2. **Global state**: ~10 global variables manage app state. Plan: consolidate into a single `state` object.
 3. **Full editor re-render on every change**: `renderEditor()` rebuilds entire DOM via `innerHTML`, losing cursor position. Plan: targeted DOM updates.
 4. **HTML string concatenation**: Both renderer and editor build HTML via `html +=`. Works but fragile at scale.
@@ -155,7 +176,7 @@ The sample CV content ships with a fictional profile. The UI labels in the HTML 
 ## Development Notes
 
 - No build tools, bundlers, or package managers (yet -- see roadmap)
-- Only external dependencies: Google Fonts (Open Sans) and html2pdf.js (CDN)
+- No runtime network access: the Open Sans font and html2pdf.js are embedded inline in `cv.html`
 - All state is in localStorage -- no backend
 - Target: all modern browsers (Chrome, Firefox, Safari, Edge)
 - The `.claude/settings.local.json` allows bash commands for: `brew`, `python3`, `pip3`, `pdftotext`

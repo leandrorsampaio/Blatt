@@ -34,8 +34,9 @@
 1. **[Download `cv.html`](https://github.com/leandrorsampaio/Blatt/releases/latest/download/cv.html)** (one self-contained file).
 2. Double-click **`cv.html`** to open it in your browser.
 3. Click the **Editor** tab, replace the sample content with yours.
-4. Adjust the look in the **Format** panel on the left.
-5. Hit **Download PDF** (or `Ctrl`/`Cmd` + `P`).
+4. Optionally add a photo in the **Photo** tab.
+5. Adjust the look in the **Format** panel on the left.
+6. Hit **Download PDF** (or `Ctrl`/`Cmd` + `P`).
 
 That's it. Your work auto-saves to your browser as you type.
 
@@ -44,7 +45,8 @@ That's it. Your work auto-saves to your browser as you type.
 ## Features
 
 - **Live A4 preview** — what you see is exactly what prints.
-- **Two views** — a live preview and a friendly form-based editor (no Markdown required).
+- **Simple editing** — a live preview alongside a friendly form-based editor (no Markdown required).
+- **Photo** — upload one, frame it with drag + zoom, optionally make it black & white, and place it either as a square at the top of the sidebar or as a circle in the top-right corner. Size and border are adjustable; it appears on page 1 only.
 - **Multi-page support** — content flows to additional pages with customizable headers.
 - **Content presets** — keep multiple versions of your CV (e.g. *English*, *German*, *Short*) side by side.
 - **Format presets** — save and reuse complete look-and-feel configurations; import/export as JSON.
