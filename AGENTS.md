@@ -51,6 +51,7 @@ src/
 | Editor | `buildEditor()`, `renderEditor()`, `editorToMD()` + all editor helpers | `editorData`, `editorDirty` |
 | Format | `FORMAT_SCHEMA`, `applyFormat()`, `buildDrawerUI()`, format change handlers | `currentFormat` |
 | Photo | One stored photo: crop stage, B&W, `renderPhoto()` | `photo`, `photoImg` |
+| ATS | PDF properties per CV version, `cvMeta()`, language detection, checks, job ad match, reading-order preview | `atsReading` |
 | Presets | Format presets + content presets (localStorage CRUD) | -- |
 | PDF | `confirmDownload()` via html2pdf.js | -- |
 | UI | Tab switching, fit-to-screen, page nav, modals, keyboard shortcuts | `fitted`, `showingTemplate`, `currentPage` |
@@ -61,7 +62,7 @@ src/
 
 1. **Markdown parser** (`parseMD()`) reads structured MD into a data object with header, sidebar sections, and main sections
 2. **Renderers** convert parsed data into HTML for a pixel-perfect A4 layout
-3. **Four tabs**: Preview (live A4 page), Editor (form-based editing), Photo, Configuration
+3. **Five tabs**: Preview (live A4 page), Editor (form-based editing), Photo, ATS, Configuration
 4. **Format panel** (left sidebar): Real-time CSS variable controls for colors, fonts, spacing, layout
 5. **Preset system**: Save/load/import/export both format presets and content presets (localStorage)
 6. **PDF export**: Image PDF via an inline copy of html2pdf.js, plus an ATS-friendly export via the browser print dialog
@@ -126,6 +127,42 @@ and therefore travel with a **design** preset, not with the content. Keys listed
 `PHOTO_FORMAT_KEYS` change the CV structurally and re-run `renderPhoto()` rather
 than setting a CSS variable.
 
+## ATS (PDF properties and machine-readability)
+
+The ATS tab sets what a PDF says about itself -- title, language, author, subject,
+keywords -- plus the download file name. Only what the user typed is stored, per CV
+version, under the `cv-content-meta` key (version name -> fields, like
+`cv-content-designs`; the pasted job ad and its ignored terms live there too); an empty field follows the CV (`cvMeta()` derives title, author,
+subject and file name from the header and guesses the language from common short
+words). Saving a version under a new name, deleting, resetting Default, and the Blatt
+backup export/import all carry or drop the entry.
+
+The two exports differ in what they can carry. The **Text PDF** comes out of the
+browser's print dialog: only `<title>` (PDF Title, and usually the suggested file name)
+and `<html lang>` (PDF `/Lang`) reach it, and Chrome tags the structure from the HTML.
+The **Image PDF** is written by jsPDF, so `applyPdfProperties()` sets every property,
+the language and `DisplayDocTitle` -- but its text is a picture no ATS can read. The
+app's own `<html lang>` is `en` (the UI language); the CV language goes on `#viewport`
+and `#editor-view`.
+
+The reading-order preview lays a copy of the rendered pages out off-screen and measures
+where each run of words lands, then shows two orders: **column by column** (DOM order,
+which is the order Chrome writes the text into the Text PDF) and **straight across** (each
+line over the full width, as simple parsers and `pdftotext -layout` read it). Check
+changes to it against a real Text PDF with `pdftotext -raw` and `pdftotext -layout`.
+
+`printCV(true)` exports the **one-column Text PDF**: the same page clones and styles, with
+`oneColumnPrintCss()` stacking the sidebar above the main column, letting the pages flow
+(page margins move to `@page`) and hiding the extra-page headers and the side bar.
+
+**Job ad match** runs fully offline. `jobKeyTerms()` drops benefits and company sections
+by their headings, splits the rest at punctuation, stop words (grammar and job-ad
+boilerplate in seven languages) and verbs that open a bullet, then ranks the remaining
+words and phrases of up to three words by frequency and by whether they look like a tool,
+acronym or name. German capitalises every noun, so there only capitalised words are kept.
+`matchJobTerms()` compares crude stems (`stemWord()`) against the CV text: found, words
+apart, or missing.
+
 ## Server mode (optional self-hosting)
 
 The same `cv.html` can be served by the server in `src/server/`: one person, behind a
@@ -165,7 +202,7 @@ All visual formatting is controlled via CSS custom properties on `:root`:
 
 These are not bugs -- the app works well -- but they'll need attention as features grow:
 
-1. **Single-file monolith (~6600 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
+1. **Single-file monolith (~7400 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
 2. **Global state**: ~10 global variables manage app state. Plan: consolidate into a single `state` object.
 3. **Full editor re-render on every change**: `renderEditor()` rebuilds entire DOM via `innerHTML`, losing cursor position. Plan: targeted DOM updates.
 4. **HTML string concatenation**: Both renderer and editor build HTML via `html +=`. Works but fragile at scale.

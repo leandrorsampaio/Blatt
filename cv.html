@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -824,6 +824,66 @@
   .photo-preview-frame.has-border { border: 3px solid var(--color-blue); }
   .photo-status { font-size: 8pt; color: var(--ui-grey-light); margin-top: 16px; line-height: 1.5; }
   @media (max-width: 860px) { .photo-view { padding: 64px 16px 24px; } .photo-grid { grid-template-columns: 1fr; } .photo-column + .photo-column { border-left: 0; border-top: 1px solid var(--ui-border); } }
+
+  /* ── ATS workspace ── */
+  .ats-view { display: none; min-height: 100vh; padding: 76px 40px 40px; background: #f5f5f5; font-family: 'Open Sans', sans-serif; }
+  .ats-view.active { display: block; }
+  .ats-view.active ~ .page-nav { display: none !important; }
+  .ats-page { max-width: 980px; margin: 0 auto; }
+  .ats-page > h2 { font-size: 18pt; color: var(--color-black); margin-bottom: 5px; }
+  .ats-intro { max-width: 760px; color: var(--color-grey); font-size: 10pt; line-height: 1.5; margin-bottom: 28px; }
+  .ats-grid { display: grid; grid-template-columns: 1fr 1fr; background: white; border: 1px solid var(--ui-border); border-radius: 12px; box-shadow: 0 3px 16px rgba(0,0,0,.06); overflow: hidden; }
+  .ats-column { padding: 26px; }
+  .ats-column + .ats-column { border-left: 1px solid var(--ui-border); }
+  .ats-column h4 { font-size: 10pt; color: var(--color-black); }
+  .ats-hint { font-size: 8.5pt; line-height: 1.45; color: var(--color-grey); margin: 4px 0 14px; }
+  .ats-field { display: block; margin-bottom: 11px; }
+  .ats-field > span { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 8pt; font-weight: 600; color: var(--color-black); margin-bottom: 4px; }
+  .ats-field em { font-style: normal; font-weight: 400; font-size: 7.5pt; color: var(--ui-grey-light); }
+  .ats-field input, .ats-field select { width: 100%; padding: 7px 9px; border: 1.5px solid var(--ui-border); border-radius: 6px; background: white; font-family: 'Open Sans', sans-serif; font-size: 9pt; color: var(--color-black); }
+  .ats-field input:focus, .ats-field select:focus { outline: none; border-color: var(--color-blue); }
+  .ats-field input::placeholder { color: var(--ui-grey-light); }
+  .ats-note { margin-top: 16px; padding: 10px 12px; border-radius: 8px; background: #f7f7f7; font-size: 8pt; line-height: 1.5; color: var(--color-grey); }
+  .ats-checks { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .ats-checks li { display: flex; gap: 9px; font-size: 8.5pt; line-height: 1.45; color: var(--color-black); }
+  .ats-checks li::before { flex-shrink: 0; width: 17px; height: 17px; border-radius: 50%; font-size: 8pt; font-weight: 700; line-height: 17px; text-align: center; color: white; }
+  .ats-checks .ok::before { content: '✓'; background: #27ae60; }
+  .ats-checks .warn::before { content: '!'; background: #e67e22; }
+  .ats-checks .error::before { content: '✕'; background: #c0392b; }
+  .ats-checks .info::before { content: 'i'; background: var(--ui-grey-light); }
+  .ats-card { margin-top: 22px; padding: 24px 26px; background: white; border: 1px solid var(--ui-border); border-radius: 12px; box-shadow: 0 3px 16px rgba(0,0,0,.06); }
+  .ats-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .ats-card h3 { font-size: 11pt; color: var(--color-black); }
+  .ats-card p { max-width: 760px; color: var(--color-grey); font-size: 9pt; line-height: 1.5; margin-bottom: 12px; }
+  .ats-toggle { display: inline-flex; gap: 2px; padding: 3px; border-radius: 8px; background: var(--ui-hover); }
+  .ats-toggle button { border: none; border-radius: 6px; padding: 6px 10px; background: none; font-family: 'Open Sans', sans-serif; font-size: 7.5pt; font-weight: 600; color: var(--color-grey); cursor: pointer; }
+  .ats-toggle button.active { background: white; color: var(--color-black); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .ats-legend { display: flex; gap: 14px; margin-bottom: 8px; font-size: 7.5pt; font-weight: 600; }
+  .ats-legend span::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 5px; border-radius: 2px; background: currentColor; }
+  .ats-view .col-side { color: var(--color-blue); }
+  .ats-view .col-main, .ats-view .col-page { color: var(--color-black); }
+  .ats-reading { max-height: 520px; overflow: auto; padding: 14px 16px; border: 1px solid var(--ui-border); border-radius: 8px; background: #fafafa; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 8pt; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ats-reading .ats-pagebreak { color: var(--ui-grey-light); }
+  .ats-job-input { width: 100%; min-height: 130px; padding: 10px 12px; border: 1.5px solid var(--ui-border); border-radius: 8px; resize: vertical; font-family: 'Open Sans', sans-serif; font-size: 8.5pt; line-height: 1.5; color: var(--color-black); }
+  .ats-job-input:focus { outline: none; border-color: var(--color-blue); }
+  .ats-job-result:empty { display: none; }
+  .ats-job-score { display: flex; align-items: center; gap: 12px; margin: 16px 0 14px; font-size: 9pt; color: var(--color-black); }
+  .ats-job-meter { flex: 0 0 160px; height: 8px; border-radius: 4px; background: var(--ui-hover); overflow: hidden; }
+  .ats-job-meter span { display: block; height: 100%; background: var(--color-blue); }
+  .ats-job-group { margin-bottom: 12px; }
+  .ats-job-group h5 { margin-bottom: 6px; font-size: 7.5pt; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--color-grey); }
+  .ats-job-group p { margin: -2px 0 7px; font-size: 8pt; }
+  .ats-terms { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ats-term { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 9px; border: 1.5px solid; border-radius: 12px; font-size: 8pt; line-height: 1.3; }
+  .ats-term small { font-size: 7pt; opacity: .7; }
+  .ats-term button { width: 16px; height: 16px; border: none; border-radius: 50%; background: none; color: inherit; font-size: 10pt; line-height: 1; cursor: pointer; opacity: .55; }
+  .ats-term button:hover { opacity: 1; background: rgba(0,0,0,.08); }
+  .ats-term.missing { border-color: #e6b0aa; background: #fdf2f1; color: #a93226; }
+  .ats-term.apart { border-color: #f0c987; background: #fef8ec; color: #9a5b0b; }
+  .ats-term.found { border-color: #a9dfbf; background: #f0faf4; color: #1e7e46; }
+  .ats-job-ignored { font-size: 8pt; color: var(--ui-grey-light); }
+  .ats-job-ignored button { border: none; background: none; padding: 0; font-family: inherit; font-size: inherit; color: var(--color-blue); text-decoration: underline; cursor: pointer; }
+  @media (max-width: 720px) { .ats-view { padding: 64px 16px 24px; } .ats-grid { grid-template-columns: 1fr; } .ats-column + .ats-column { border-left: 0; border-top: 1px solid var(--ui-border); } }
 
   /* ── Format Panel (fixed left side) ── */
   .format-panel {
@@ -2276,7 +2336,7 @@
   }
 
   @media print {
-    .format-panel, .format-panel-toggle, .tab-bar, .editor-view, .photo-view, .configuration-view { display: none !important; }
+    .format-panel, .format-panel-toggle, .tab-bar, .editor-view, .photo-view, .ats-view, .configuration-view { display: none !important; }
     .viewport { margin-left: 0; padding-top: 0; }
     .viewport:not(.active) { display: flex !important; flex-direction: column; }
     .viewport .page,
@@ -2582,6 +2642,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
   <button class="active" data-tab="preview" onclick="switchTab('preview')">Preview</button>
   <button data-tab="editor" onclick="switchTab('editor')">Editor</button>
   <button data-tab="photo" onclick="switchTab('photo')">Photo</button>
+  <button data-tab="ats" onclick="switchTab('ats')">ATS</button>
   <button data-tab="configuration" onclick="switchTab('configuration')">Configuration</button>
   <div class="save-indicator" id="save-indicator">Saved automatically</div>
   <div class="sync-status" id="sync-status" hidden>
@@ -2660,6 +2721,50 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
     </div>
   </main>
   <input type="file" id="photo-file-input" accept="image/*" style="display:none">
+</div>
+
+<!-- ATS workspace -->
+<div class="ats-view" id="ats-view">
+  <main class="ats-page">
+    <h2>ATS</h2>
+    <p class="ats-intro">Job portals pass your CV through an applicant tracking system (ATS) that pulls the text out of the PDF. Here you set what the PDF says about itself, check what the machine finds, and see the order in which it reads your CV.</p>
+    <div class="ats-grid">
+      <section class="ats-column">
+        <div class="library-heading"><h4>PDF properties</h4><span id="ats-version"></span></div>
+        <p class="ats-hint">Saved with this CV version. Leave a field empty and it follows your CV automatically.</p>
+        <label class="ats-field"><span>Title <em>Text &amp; Image PDF</em></span><input type="text" id="ats-title" oninput="onAtsField('title', this.value)"></label>
+        <label class="ats-field"><span>Language <em>Text &amp; Image PDF</em></span><select id="ats-language" onchange="onAtsField('language', this.value)"></select></label>
+        <label class="ats-field"><span>Author <em>Image PDF only</em></span><input type="text" id="ats-author" oninput="onAtsField('author', this.value)"></label>
+        <label class="ats-field"><span>Subject <em>Image PDF only</em></span><input type="text" id="ats-subject" oninput="onAtsField('subject', this.value)"></label>
+        <label class="ats-field"><span>Keywords <em>Image PDF only</em></span><input type="text" id="ats-keywords" placeholder="e.g. product management, SQL, A/B testing" oninput="onAtsField('keywords', this.value)"></label>
+        <label class="ats-field"><span>File name <em>Image PDF &amp; TXT</em></span><input type="text" id="ats-filename" oninput="onAtsField('filename', this.value)"></label>
+        <p class="ats-note">Upload a <strong>Text PDF</strong> to job portals (Download PDF → Print / Save as Text PDF); the one-column version is the safest. Browsers only let a Text PDF carry the title and the language, and most of them suggest the title as its file name. The <strong>Image PDF</strong> carries every property, but its text is a picture an ATS cannot read. Keywords are rarely used by an ATS: the words in your CV are what count.</p>
+      </section>
+      <section class="ats-column">
+        <h4>Checks</h4>
+        <p class="ats-hint">What a parser looks for first.</p>
+        <ul class="ats-checks" id="ats-checks"></ul>
+      </section>
+    </div>
+    <section class="ats-card">
+      <div class="ats-card-heading"><h3>Match a job ad</h3></div>
+      <p>Paste the job ad, or at least its tasks and requirements. Blatt picks out its key terms and shows which ones your CV already uses: an ATS ranks applicants by these words, and recruiters search for them. Nothing leaves your browser, and the ad is saved with this CV version.</p>
+      <textarea class="ats-job-input" id="ats-job" placeholder="Paste the job ad here…" oninput="onAtsJobInput(this.value)"></textarea>
+      <div class="ats-job-result" id="ats-job-result"></div>
+    </section>
+    <section class="ats-card">
+      <div class="ats-card-heading">
+        <h3>How machines read your CV</h3>
+        <div class="ats-toggle" id="ats-reading-toggle">
+          <button data-mode="columns" onclick="setAtsReadingMode('columns')">Column by column</button>
+          <button data-mode="across" onclick="setAtsReadingMode('across')">Straight across</button>
+        </div>
+      </div>
+      <p id="ats-reading-desc"></p>
+      <div class="ats-legend"><span class="col-side">Sidebar</span><span class="col-main">Header &amp; main column</span></div>
+      <div class="ats-reading" id="ats-reading"></div>
+    </section>
+  </main>
 </div>
 
 <!-- Configuration workspace -->
@@ -2780,8 +2885,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        <span class="modal-export-label">Save as Image PDF</span>
-        <span class="modal-export-desc">Pixel-perfect layout</span>
+        <span><span class="modal-export-label">Save as Image PDF</span><span class="modal-export-desc">Pixel-perfect layout</span></span>
       </button>
       <button class="modal-export-option modal-export-option--ats" onclick="printCV()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
@@ -2789,8 +2893,14 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
           <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
           <rect x="6" y="14" width="12" height="8"/>
         </svg>
-        <span class="modal-export-label">Print / Save as Text PDF</span>
-        <span class="modal-export-desc">ATS-friendly, selectable text</span>
+        <span><span class="modal-export-label">Print / Save as Text PDF</span><span class="modal-export-desc">Your layout, with text an ATS can read</span></span>
+      </button>
+      <button class="modal-export-option modal-export-option--ats" onclick="printCV(true)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <rect x="4" y="2" width="16" height="20" rx="2"/>
+          <line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="16" y2="15"/>
+        </svg>
+        <span><span class="modal-export-label">Print / Save as one-column Text PDF</span><span class="modal-export-desc">Safest for job portals: no columns to mix up</span></span>
       </button>
     </div>
     <div class="modal-actions">
@@ -2889,7 +2999,10 @@ const state = {
   photoImg:         null,    /* decoded source image, only while the Photo tab is used */
   photoDrag:        null,    /* pointer drag bookkeeping for the crop stage */
   photoCommitTimer: null,
-  sync:             { active: false, busy: false, blocked: false, stale: false, lastPollHash: null, dirtySince: 0,
+  atsReading:       null,    /* text positions measured when the ATS tab opens -- see ATS module */
+  atsReadingMode:   'columns',
+  atsJobTimer:      null,
+  sync:            { active: false, busy: false, blocked: false, stale: false, lastPollHash: null, dirtySince: 0,
                       failedHash: null, inflight: null, timer: null },
 };
 
@@ -3542,6 +3655,7 @@ function renderCV(mdText) {
   document.querySelector('.sidebar').innerHTML = sidebarHTML;
   document.querySelector('.main').innerHTML = mainHTML;
   document.title = (data.header.name || 'CV') + ' – CV';
+  applyCvLanguage(cvMeta(data).language);
   state.currentName = data.header.name || '';
   document.getElementById('pdf-filename').value = '';
 
@@ -3601,11 +3715,13 @@ function switchTab(tab) {
   const viewport = document.getElementById('viewport');
   const editorView = document.getElementById('editor-view');
   const photoView = document.getElementById('photo-view');
+  const atsView = document.getElementById('ats-view');
   const configurationView = document.getElementById('configuration-view');
   const panel = document.getElementById('preview-panel');
   const formatPanel = document.querySelector('.format-panel');
   const formatToggle = document.getElementById('format-toggle');
   photoView.classList.toggle('active', tab === 'photo');
+  atsView.classList.toggle('active', tab === 'ats');
 
   if (tab === 'preview') {
     viewport.classList.add('active');
@@ -3648,6 +3764,16 @@ function switchTab(tab) {
     formatToggle.style.display = 'none';
     if (state.editorDirty) state.currentMD = editorToMD();
     buildPhotoView();
+  } else if (tab === 'ats') {
+    viewport.classList.remove('active');
+    editorView.classList.remove('active');
+    configurationView.classList.remove('active');
+    panel.style.display = 'none';
+    document.getElementById('page-nav').style.display = 'none';
+    formatPanel.classList.add('hidden');
+    formatToggle.style.display = 'none';
+    if (state.editorDirty) state.currentMD = editorToMD();
+    buildAtsView();
   } else if (tab === 'configuration') {
     viewport.classList.remove('active');
     editorView.classList.remove('active');
@@ -4847,6 +4973,7 @@ function confirmSaveContentPreset() {
   const presets = getContentPresets();
   presets[name] = state.currentMD;
   setContentPresets(presets);
+  setContentMeta(name, getContentMeta(getActiveContentName()));
   setActiveContentName(name);
   setContentDesign(name, getActivePresetName());
   refreshContentPresetSelect();
@@ -4878,6 +5005,7 @@ function deleteContentPreset() {
     /* Default has no separate copy to delete — offer to reset it to the original */
     showConfirm('Reset Default CV?', 'Your edits to the Default CV will be discarded and the original content restored.', 'Reset', function() {
       localStorage.removeItem(CONTENT_DEFAULT);
+      setContentMeta('Default', null);
       loadContentPreset('Default');
       refreshContentPresetSelect();
     });
@@ -4890,6 +5018,7 @@ function deleteContentPreset() {
     const designs = getContentDesigns();
     delete designs[active];
     localStorage.setItem(CONTENT_DESIGNS, JSON.stringify(designs));
+    setContentMeta(active, null);
     loadContentPreset('Default');
     refreshContentPresetSelect();
   });
@@ -4901,6 +5030,8 @@ function exportContentPreset() {
     state.currentMD = editorToMD();
   }
   const data = { name: name, md: state.currentMD };
+  const meta = getContentMeta(name);
+  if (Object.keys(meta).length) data.meta = meta;
   /* One photo is shared by every CV version, so a backup carries it along. */
   if (state.photo && state.photo.image && !state.photo.placeholder) data.photo = state.photo;
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -4929,6 +5060,7 @@ document.getElementById('content-import-input').addEventListener('change', funct
       setContentPresets(presets);
       setActiveContentName(name);
       setContentDesign(name, getActivePresetName());
+      setContentMeta(name, data.meta);
       state.currentMD = data.md;
       if (data.photo && typeof data.photo === 'object' && data.photo.image) {
         state.photo = normalizePhoto(data.photo);
@@ -5079,7 +5211,7 @@ document.getElementById('word-import-input').addEventListener('change', async fu
     var markdown = docxToMarkdown(await readDocxPart(await file.arrayBuffer(), 'word/document.xml'));
     var parsed = parseMD(markdown), presets = getContentPresets();
     var name = getUniqueContentName(parsed.header.name || file.name.replace(/\.docx$/i, ''), presets);
-    presets[name] = markdown; setContentPresets(presets); setActiveContentName(name); setContentDesign(name, getActivePresetName());
+    presets[name] = markdown; setContentPresets(presets); setActiveContentName(name); setContentDesign(name, getActivePresetName()); setContentMeta(name, null);
     state.currentMD = markdown; renderCV(markdown); refreshContentPresetSelect(); markClean();
     showToast('Word document imported as "' + name + '"');
   } catch (err) { showToast(err.message || 'Could not import this Word document', 'error'); }
@@ -5137,13 +5269,583 @@ function buildTxtCV() {
 
 function downloadTxt() {
   const text = buildTxtCV();
-  const filename = (state.currentName || 'CV').replace(/[^a-z0-9_-]+/gi, '_').replace(/^_+|_+$/g, '') || 'CV';
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = filename + '_CV.txt';
+  a.download = cvMeta().filename + '.txt';
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+/* ================================================================
+ *  ATS -- PDF properties, CV language and machine-readability checks
+ *
+ *  Besides its visible text, a PDF tells machines its title, author,
+ *  subject, keywords and language. Per CV version only what the user
+ *  typed is stored (cv-content-meta); an empty field follows the CV.
+ *
+ *  The Text PDF comes out of the browser's print dialog, which only
+ *  takes the title (<title>) and the language (<html lang>). The Image
+ *  PDF is written by jsPDF and carries every property.
+ * ================================================================ */
+const CONTENT_META = 'cv-content-meta'; /* CV version name -> { title, author, subject, keywords, language, filename, jobAd, jobIgnore } */
+const META_FIELDS = ['title', 'author', 'subject', 'keywords', 'language', 'filename'];
+const STORED_FIELDS = META_FIELDS.concat(['jobAd', 'jobIgnore']); /* plus the job ad this version is matched against */
+
+const CV_LANGUAGES = {
+  en: 'English', de: 'German', fr: 'French', es: 'Spanish', pt: 'Portuguese', it: 'Italian', nl: 'Dutch',
+  pl: 'Polish', sv: 'Swedish', da: 'Danish', nb: 'Norwegian', fi: 'Finnish', cs: 'Czech', ro: 'Romanian',
+  hu: 'Hungarian', el: 'Greek', tr: 'Turkish', ru: 'Russian', uk: 'Ukrainian', ar: 'Arabic', hi: 'Hindi',
+  zh: 'Chinese', ja: 'Japanese', ko: 'Korean'
+};
+
+/* Short words that give a language away; the CV text is scored against each list */
+const LANGUAGE_HINTS = {
+  en: 'the and of with for to on at from by',
+  de: 'und der die das mit für von im bei zur zum des den dem eine einer sowie auf',
+  fr: 'et le les des du une avec pour dans sur au aux par',
+  es: 'y el los las del una con para por al como',
+  pt: 'e o os as do da dos das em com para uma no na ao',
+  it: 'e il gli del della dei con per una nel nella di',
+  nl: 'en het van met voor een op bij als aan'
+};
+
+/* Headings a parser maps to its standard sections -- lowercase fragments in several languages */
+const ATS_SECTIONS = [
+  { label: 'Experience', stems: ['experience', 'employment', 'work history', 'career', 'erfahrung', 'werdegang', 'beruf',
+    'expérience', 'experiencia', 'experiência', 'esperienz', 'ervaring', 'loopbaan', 'doświadczenie', 'erfarenhet', 'erfaring', 'kokemus'] },
+  { label: 'Education', stems: ['education', 'academic', 'studies', 'bildung', 'studium', 'formation', 'études', 'formación',
+    'educación', 'estudios', 'formação', 'educação', 'istruzione', 'formazione', 'opleiding', 'onderwijs', 'wykształcenie',
+    'utbildning', 'uddannelse', 'utdanning', 'koulutus'] },
+  { label: 'Skills', stems: ['skill', 'competenc', 'expertise', 'tools', 'technolog', 'kenntnisse', 'fähigkeit', 'kompetenz',
+    'compétence', 'connaissance', 'habilidad', 'conocimiento', 'competência', 'habilidade', 'conhecimento', 'competenz',
+    'conoscenz', 'vaardigheden', 'kennis', 'umiejętności', 'kompetens', 'färdigheter', 'ferdigheter', 'færdigheder', 'taidot', 'osaaminen'] }
+];
+
+const ATS_READING_DESC = {
+  columns: 'Column by column is the order Blatt writes the text into the Text PDF: the header, then the sidebar, then the main column. Parsers that recognise columns read it like this.',
+  across: 'Straight across is how older or simpler parsers read: every line over the full width of the page. Wherever the sidebar and the main column share a line, their text runs together.'
+};
+
+function getContentMetas() {
+  try { return JSON.parse(localStorage.getItem(CONTENT_META)) || {}; } catch { return {}; }
+}
+function getContentMeta(name) {
+  const meta = getContentMetas()[name];
+  return meta && typeof meta === 'object' ? meta : {};
+}
+/* Store the typed fields of one CV version; empty fields are dropped, null forgets the version */
+function setContentMeta(name, meta) {
+  const metas = getContentMetas(), clean = {};
+  STORED_FIELDS.forEach(function(k) {
+    if (meta && typeof meta[k] === 'string' && meta[k].trim()) clean[k] = meta[k];
+  });
+  if (!Object.keys(clean).length && !Object.prototype.hasOwnProperty.call(metas, name)) return;
+  if (Object.keys(clean).length) metas[name] = clean; else delete metas[name];
+  localStorage.setItem(CONTENT_META, JSON.stringify(metas));
+}
+
+/* All CV text as plain words, for language detection and the checks */
+function cvPlainText(data) {
+  const parts = [data.header.name, data.header.degree, data.header.subtitle];
+  data.sections.forEach(function(section) {
+    if (section.type === 'page') return;
+    parts.push(section.title);
+    parts.push.apply(parts, section.paragraphs.concat(section.lines));
+    section.entries.forEach(function(entry) {
+      if (entry.title !== SAME_ORG) parts.push(entry.title);
+      entry.fields.forEach(function(field) { parts.push(field.key, field.value); });
+    });
+  });
+  return parts.filter(Boolean).map(plainText).join('\n');
+}
+
+/* Language code of the text, or '' when the hint words are too rare to tell */
+function detectLanguage(text) {
+  const words = text.toLowerCase().split(/[^a-zà-ÿ]+/).filter(Boolean);
+  const counts = {};
+  words.forEach(function(w) { counts[w] = (counts[w] || 0) + 1; });
+  let best = '', bestScore = 0;
+  Object.keys(LANGUAGE_HINTS).forEach(function(code) {
+    const score = LANGUAGE_HINTS[code].split(' ').reduce(function(n, w) { return n + (counts[w] || 0); }, 0);
+    if (score > bestScore) { best = code; bestScore = score; }
+  });
+  return bestScore >= 3 && bestScore >= words.length * 0.03 ? best : '';
+}
+
+/* What a PDF of the current CV says about itself: the typed value, else one derived from the CV */
+function cvMeta(data) {
+  data = data || parseMD(state.currentMD);
+  const name = plainText(data.header.name || '');
+  const detected = detectLanguage(cvPlainText(data));
+  const auto = {
+    title: (name || 'CV') + ' – CV',
+    author: name,
+    subject: plainText(data.header.subtitle || ''),
+    keywords: '',
+    language: detected || 'en',
+    filename: (name || 'CV').replace(/\s+/g, '_') + '_CV'
+  };
+  const saved = getContentMeta(getActiveContentName());
+  const meta = { auto: auto, detected: detected };
+  META_FIELDS.forEach(function(k) { meta[k] = (typeof saved[k] === 'string' && saved[k].trim()) || auto[k]; });
+  if (!CV_LANGUAGES[meta.language]) meta.language = auto.language;
+  meta.filename = meta.filename.replace(/\.(pdf|txt)$/i, '').replace(/[\\/:*?"<>|]+/g, '_');
+  return meta;
+}
+
+/* The CV's language on the page and in the editor; the app's own UI stays English */
+function applyCvLanguage(lang) {
+  document.getElementById('viewport').lang = lang;
+  document.getElementById('editor-view').lang = lang;
+}
+
+/* html2pdf hook: write the properties into the Image PDF before it is saved */
+function applyPdfProperties(pdf) {
+  const meta = cvMeta();
+  pdf.setProperties({ title: meta.title, author: meta.author, subject: meta.subject, keywords: meta.keywords, creator: 'Blatt' });
+  pdf.setLanguage(meta.language);
+  pdf.viewerPreferences({ DisplayDocTitle: true });
+}
+
+function buildAtsView() {
+  if (state.showingTemplate) toggleTemplate(); else renderCV(state.currentMD);
+  const saved = getContentMeta(getActiveContentName());
+  const meta = cvMeta();
+  document.getElementById('ats-version').textContent = 'CV version: ' + getActiveContentName();
+  ['title', 'author', 'subject', 'filename'].forEach(function(k) {
+    const input = document.getElementById('ats-' + k);
+    input.value = saved[k] || '';
+    input.placeholder = meta.auto[k];
+  });
+  document.getElementById('ats-keywords').value = saved.keywords || '';
+  const select = document.getElementById('ats-language');
+  select.innerHTML = '<option value="">Automatic: ' + esc(CV_LANGUAGES[meta.auto.language]) + (meta.detected ? ' (detected)' : '') + '</option>' +
+    Object.keys(CV_LANGUAGES).map(function(code) { return '<option value="' + code + '">' + esc(CV_LANGUAGES[code]) + '</option>'; }).join('');
+  select.value = CV_LANGUAGES[saved.language] ? saved.language : '';
+  document.getElementById('ats-job').value = saved.jobAd || '';
+  state.atsReading = measureCvText();
+  renderAtsChecks();
+  renderAtsJob();
+  renderAtsReading();
+}
+
+function onAtsField(key, value) {
+  const name = getActiveContentName();
+  const meta = getContentMeta(name);
+  meta[key] = value;
+  setContentMeta(name, meta);
+  if (key === 'language') {
+    applyCvLanguage(cvMeta().language);
+    renderAtsChecks();
+  }
+}
+
+function renderAtsChecks() {
+  const data = parseMD(state.currentMD);
+  const meta = cvMeta(data);
+  const text = cvPlainText(data);
+  const items = [];
+  const add = function(level, html) { items.push('<li class="' + level + '"><span>' + html + '</span></li>'); };
+
+  if (data.header.name) add('ok', 'Name: <strong>' + esc(plainText(data.header.name)) + '</strong>');
+  else add('error', 'No name at the top of the CV.');
+
+  const email = text.match(/[^\s@<>()\[\]]+@[^\s@<>()\[\]]+\.[a-z]{2,}/i);
+  if (email) add('ok', 'Email: ' + esc(email[0]));
+  else add('error', 'No email address. A parser only finds contact details written as text in the CV.');
+
+  /* Phone: contact details live in the sidebar; dates in the main column would look like numbers too */
+  const sideLines = [];
+  data.sections.forEach(function(s) { if (s.type === 'sidebar') sideLines.push.apply(sideLines, s.lines.concat(s.paragraphs)); });
+  const phone = sideLines.find(function(l) { return l.startsWith(':phone:'); }) ||
+    sideLines.find(function(l) { return (l.match(/\d/g) || []).length >= 7 && /\+?\d[\d ()\/.-]{6,}\d/.test(l); });
+  if (phone) add('ok', 'Phone: ' + esc(plainText(phone).replace(/^Phone:\s*/, '')));
+  else add('warn', 'No phone number found.');
+
+  const placeholder = text.match(/\[[^\]\n]{2,}\]/) || text.match(/lorem ipsum/i);
+  if (placeholder) add('error', 'Template text is still in the CV: “' + esc(placeholder[0]) + '”.');
+
+  const chosen = getContentMeta(getActiveContentName()).language;
+  const languageName = CV_LANGUAGES[meta.language];
+  if (CV_LANGUAGES[chosen] && meta.detected && chosen !== meta.detected) {
+    add('warn', 'Language is set to ' + languageName + ', but the text reads like ' + CV_LANGUAGES[meta.detected] + '.');
+  } else if (!CV_LANGUAGES[chosen] && !meta.detected) {
+    add('warn', 'Blatt could not tell which language this CV is in, so it says ' + languageName + '. Choose the right one under Language.');
+  } else {
+    add('ok', 'Language: ' + languageName + (CV_LANGUAGES[chosen] ? '' : ' (detected)'));
+  }
+
+  const titles = data.sections.filter(function(s) { return s.type !== 'page'; }).map(function(s) { return s.title; });
+  const isKind = function(title, kind) { return kind.stems.some(function(stem) { return title.toLowerCase().includes(stem); }); };
+  const found = [], missing = [];
+  ATS_SECTIONS.forEach(function(kind) {
+    const title = titles.find(function(t) { return isKind(t, kind); });
+    if (title) found.push('“' + esc(plainText(title)) + '”'); else missing.push(kind.label);
+  });
+  if (found.length) add('ok', 'Headings a parser recognises: ' + found.join(', '));
+  missing.forEach(function(label) { add('warn', 'No heading a parser recognises as ' + label.toLowerCase() + ', such as “' + label + '”.'); });
+
+  /* Jobs and degrees: parsers work out years of experience from their dates */
+  const timeline = data.sections.filter(function(s) {
+    return s.type === 'main' && (isKind(s.title, ATS_SECTIONS[0]) || isKind(s.title, ATS_SECTIONS[1]));
+  });
+  const undated = [];
+  timeline.forEach(function(section) {
+    let org = '';
+    section.entries.forEach(function(entry) {
+      if (entry.title !== SAME_ORG) org = plainText(entry.title.split('|')[0]);
+      if (!/\b(19|20)\d{2}\b/.test(fieldVal(entry.fields, 'Date'))) undated.push(org || fieldVal(entry.fields, 'Title'));
+    });
+  });
+  if (undated.length) add('warn', 'No year in the date of: ' + esc(undated.slice(0, 3).join(', ')) + (undated.length > 3 ? ' and ' + (undated.length - 3) + ' more' : '') + '. Write dates like 03/2021 – Present.');
+  else if (timeline.length) add('ok', 'Every job and degree has a date with a year.');
+
+  const mixed = atsMixedLines();
+  if (mixed) add('info', 'Simpler parsers read straight across the page and run your two columns together on ' + mixed + ' line' + (mixed === 1 ? '' : 's') + '. See below, or use the one-column Text PDF for job portals.');
+
+  const pages = (state.atsReading || []).length;
+  if (pages > 2) add('info', pages + ' pages. Recruiters usually expect one or two.');
+
+  document.getElementById('ats-checks').innerHTML = items.join('');
+}
+
+/* Lay a copy of the rendered pages out off-screen and note where every run
+   of words lands -- the raw material for both reading orders below. */
+function measureCvText() {
+  const holder = document.createElement('div');
+  holder.style.cssText = 'position:absolute;left:-10000px;top:0;width:210mm;pointer-events:none';
+  holder.setAttribute('aria-hidden', 'true');
+  document.querySelectorAll('#viewport .page, #viewport .page-extra').forEach(function(page) {
+    const clone = page.cloneNode(true);
+    clone.style.display = 'flex';
+    holder.appendChild(clone);
+  });
+  document.body.appendChild(holder);
+  const pages = Array.from(holder.children).map(measurePageText);
+  holder.remove();
+  return pages;
+}
+
+/* Runs of words in document order, each with its box on the page and its column */
+function measurePageText(page) {
+  const origin = page.getBoundingClientRect();
+  const range = document.createRange();
+  const walker = document.createTreeWalker(page, NodeFilter.SHOW_TEXT);
+  const runs = [];
+  let lastItem = null;
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const parent = node.parentElement;
+    const column = parent.closest('.sidebar') ? 'side' : parent.closest('.main') ? 'main' : 'page';
+    const heading = !!parent.closest('h1, h2');
+    const item = parent.closest('li');
+    const words = /\S+/g;
+    let run = null, m;
+    while ((m = words.exec(node.nodeValue))) {
+      range.setStart(node, m.index);
+      range.setEnd(node, m.index + m[0].length);
+      const r = range.getBoundingClientRect();
+      if (!r.width) continue;
+      let word = m[0];
+      /* The list marker is not in the DOM text, but the PDF carries it */
+      if (item && item !== lastItem) { word = '• ' + word; lastItem = item; }
+      const box = { top: r.top - origin.top, left: r.left - origin.left, right: r.right - origin.left, height: r.height };
+      if (run && Math.abs(box.top - run.top) < box.height / 2 && box.left >= run.right - 1) {
+        run.text += ' ' + word;
+        run.right = box.right;
+      } else {
+        if (run) runs.push(run);
+        run = { text: word, top: box.top, left: box.left, right: box.right, height: box.height, column: column, heading: heading };
+      }
+    }
+    if (run) runs.push(run);
+  }
+  return runs;
+}
+
+/* Group runs into printed lines. 'columns' keeps the order the text is written
+   in; 'across' reads each line over the full page width, like a simple parser. */
+function atsLines(runs, mode) {
+  const middle = function(r) { return r.top + r.height / 2; };
+  const ordered = mode === 'across' ? runs.slice().sort(function(a, b) { return middle(a) - middle(b) || a.left - b.left; }) : runs;
+  const lines = [];
+  ordered.forEach(function(run) {
+    const line = lines[lines.length - 1];
+    const last = line && line[line.length - 1];
+    const sameRow = last && Math.abs(middle(run) - middle(last)) < Math.min(run.height, last.height) / 2;
+    if (sameRow && (mode === 'across' || run.left >= last.right - 1)) line.push(run);
+    else lines.push([run]);
+  });
+  if (mode === 'across') lines.forEach(function(line) { line.sort(function(a, b) { return a.left - b.left; }); });
+  return lines;
+}
+
+function atsLinesHtml(lines) {
+  let html = '', prev = null;
+  lines.forEach(function(line) {
+    const first = line[0];
+    /* Blank line before a heading, or where reading jumps back up into the next column */
+    if (prev && (first.heading || first.top < prev.top - prev.height)) html += '\n';
+    html += line.map(function(run, i) {
+      const gap = i ? run.left - line[i - 1].right : 0;
+      const space = !i ? '' : gap > run.height ? '     ' : gap > run.height * 0.1 ? ' ' : '';
+      return space + '<span class="col-' + run.column + '">' + esc(run.text) + '</span>';
+    }).join('') + '\n';
+    prev = first;
+  });
+  return html;
+}
+
+/* Lines where a simple parser runs the sidebar into the main column */
+function atsMixedLines() {
+  return (state.atsReading || []).reduce(function(n, runs) {
+    return n + atsLines(runs, 'across').filter(function(line) {
+      return line.some(function(r) { return r.column === 'side'; }) && line.some(function(r) { return r.column === 'main'; });
+    }).length;
+  }, 0);
+}
+
+function setAtsReadingMode(mode) {
+  state.atsReadingMode = mode;
+  renderAtsReading();
+}
+
+function renderAtsReading() {
+  const mode = state.atsReadingMode;
+  document.querySelectorAll('#ats-reading-toggle button').forEach(function(b) { b.classList.toggle('active', b.dataset.mode === mode); });
+  let desc = ATS_READING_DESC[mode];
+  if (mode === 'across') {
+    const mixed = atsMixedLines();
+    desc += mixed ? ' On your CV that happens on ' + mixed + ' line' + (mixed === 1 ? '' : 's') + '. The one-column Text PDF in Download PDF avoids this.'
+      : ' On your CV the two columns never share a line.';
+  }
+  document.getElementById('ats-reading-desc').textContent = desc;
+  document.getElementById('ats-reading').innerHTML = (state.atsReading || []).map(function(runs, i) {
+    return (i ? '\n<span class="ats-pagebreak">── Page ' + (i + 1) + ' ──</span>\n\n' : '') + atsLinesHtml(atsLines(runs, mode));
+  }).join('');
+}
+
+/* ── Job ad match ──
+   Key terms are picked locally: runs of words between stop words and
+   punctuation, weighted by how often they occur and whether they look like a
+   tool, acronym or name. Words are compared by a crude stem, so "managed"
+   finds "management" and "Entwickler" finds "Entwicklung". */
+const JOB_WORD = /[\p{L}\p{N}][\p{L}\p{N}+#.\/&'’-]*[\p{L}\p{N}+#]|[\p{L}\p{N}]/gu;
+const JOB_STEM_SUFFIXES = ['ungen', 'ations', 'ation', 'ating', 'ated', 'ates', 'ate', 'ments', 'ment', 'ings', 'ing',
+  'ities', 'ity', 'ions', 'ion', 'ung', 'ies', 'ers', 'er', 'ed', 'es', 'en', 'al', 's'];
+const JOB_MAX_TERMS = 40;
+const JOB_MAX_PHRASES = 25;
+
+/* Benefits and company blurbs name no skills; a line starting like this ends the
+   useful part of the ad, a tasks or requirements heading starts it again */
+const JOB_SKIP_HEADING = /^[^\p{L}]*(what we offer|we offer|our offer|benefits|perks|why (join|work)|about us|about the company|who we are|wir bieten|was wir bieten|das bieten wir|unser angebot|über uns|wer wir sind|o que oferecemos|oferecemos|benefícios|sobre nós|ofrecemos|beneficios|sobre nosotros|nous offrons|avantages|qui sommes-nous|offriamo|chi siamo|wij bieden|wat wij bieden|over ons)/iu;
+const JOB_KEEP_HEADING = /^[^\p{L}]*(what you('ll| will)|your (tasks|role|responsibilities|profile|mission|skills)|responsibilities|requirements|qualifications|what you (bring|need|have)|who you are|about you|about the role|the role|must.have|nice.to.have|skills|deine aufgaben|ihre aufgaben|aufgaben|dein profil|ihr profil|anforderungen|was du mitbringst|das bringst du mit|qualifikation|suas atividades|responsabilidades|requisitos|qualificações|funciones|tus funciones|tu perfil|vos missions|votre profil|missions|profil recherché|compétences|mansioni|requisiti|il tuo profilo|jouw taken|functie-eisen|wat vragen wij|jouw profiel)/iu;
+
+/* English ads put verbs in front of the skill ("Own the roadmap", "and track KPIs"). These are
+   dropped at the start of a phrase; the second list only at the start of a bullet, since
+   its words are skills too ("UX design", "customer support"). */
+const JOB_VERBS = ('own run define drive ensure collaborate translate validate track identify implement improve maintain monitor ' +
+  'prioritize prioritise coordinate conduct communicate establish execute oversee gather understand evaluate optimize optimise ' +
+  'influence align facilitate engage explore discover investigate prepare provide contribute build help bring take write shape ' +
+  'turn make deliver create develop manage use analyze analyse').split(' ');
+const JOB_LEAD_VERBS = new Set(JOB_VERBS.concat('design support plan report research review lead scale launch ship grow mentor coach partner present work act set hire champion'.split(' ')));
+const JOB_PHRASE_VERBS = new Set(JOB_VERBS);
+
+/* Grammar words, plus the words every job ad uses ("experience", "team", "skills") */
+const JOB_STOP_WORDS = new Set([
+  /* English */
+  'a about above after again against all also am an and and/or any are as at be because been before being below between both but by can could did do does doing down during each either else etc even ever every few for from further had has have having he her here hers him his how however i if in into is it its itself just less like many may me might more most much must my no nor not now of off on once only or other our ours out over own per same shall she should so some such than that the their them then there these they this those through thus to too under until up upon us very via was we were what when where whether which while who whom whose why will with within without would yet you your yours e.g i.e',
+  'ability able across additional apply applicant applicants application applications based benefits best bonus candidate candidates career chance closely colleagues company competitive contribute culture daily day days diverse diversity eager employee employees employer environment equal ensure excellent excited exciting experience experienced expertise familiar familiarity field flexible friendly gender good great grow growing growth help highly hiring hours ideal ideally include includes including join joining knowledge least level looking love make minimum mission nice offer offering office opportunities opportunity part passion passionate perks plus position preferred proficiency proficient proven qualification qualifications related relevant remote required requirement requirements responsibilities responsible role salary similar skill skills solid strong success successful team teams thrive time understanding use using various vacation way well wide work working world year years together clear clearly hands-on concept concepts principles practices methods methodologies techniques fundamentals basics tools',
+  /* German */
+  'aber alle allem allen aller alles als also am an andere anderen auch auf aus bei beim bereits bis bzw da dabei damit dann das dass dein deine deinen deiner dem den denn der des deshalb die dies diese diesem diesen dieser dieses doch dort du durch ein eine einem einen einer eines er es etwa euch euer eure für gegen habe haben hat hier ich ihm ihn ihr ihre ihrem ihren ihrer im in ins ist ja je jede jedem jeden jeder jedes kann kannst kein keine können man mehr mein meine mit muss musst nach neben nicht noch nun nur ob oder ohne sehr sein seine sich sie sind so sowie soll sollte sondern über um und uns unser unsere unseren unserer unter viel vom von vor was weil weiter welche wenn wer werden wie wieder wir wird wo z.b u.a d.h m/w/d w/m/d m/f/d f/m/d d/m/w',
+  'abgeschlossene abgeschlossenes abgeschlossenen arbeit arbeiten arbeitsplatz aufgabe aufgaben ausgeprägte ausgeprägtes ausgeprägten bereich bereichen bewerbung bieten bringst bringen einschlägige erfahrung erfahrungen erste ersten freuen gerne gute guten gutes idealerweise jahre jahren kenntnisse kenntnissen kollegen mindestens möglichkeit möglichkeiten neue neuen profil rolle sichere sicheres sicherer stelle suchen team teams tätigkeit umgang unternehmen vergleichbare vergleichbaren vorteil wünschenswert verhandlungssicher verhandlungssichere verhandlungssicheres fließend fließende fließendes sehr hohe hohes hoher ausgezeichnete strukturierte selbstständige eigenständige studium ausbildung qualifikation anforderungen methoden konzepte grundlagen',
+  /* French */
+  'au aux avec ce ces dans de des du elle en et eux il je la le les leur lui ma mais me même mes moi mon ne nos notre nous on ou où par pas pour qu que qui sa se ses son sur ta te tes toi ton tu un une vos votre vous afin ainsi chez comme dont entre plus selon sous tout toute toutes tous très',
+  'ans année années bonne bonnes candidat candidature capacité compétences connaissances équipe équipes excellente expérience expériences idéalement maîtrise minimum mission missions offrons poste profil rejoindre souhaité souhaitée',
+  /* Spanish */
+  'al algo ante antes como con contra cual cuando del desde donde durante el ella ellas ellos entre era es esa esas ese eso esos esta estas este esto estos fue ha hay las les lo los más mi mis mucho muy nada ni nos nosotros nuestra nuestro nuestros otra otro para pero poco por porque quien sea ser si sin sobre su sus también tanto tu tus una uno unos y ya',
+  'año años buen buena buenas candidato capacidad conocimiento conocimientos deseable equipo equipos excelente experiencia funciones mínimo ofrecemos perfil puesto requisitos valorable',
+  /* Portuguese */
+  'ao aos às com da das dele deles do dos é ela elas ele eles em essa essas esse esses eu foi há isso isto já lhe mas mesmo meu minha muito na nas não nem no nossa nosso num numa os ou pela pelas pelo pelos qual quando quem sem seu seus sua suas tem um umas uns você vocês',
+  'ano anos atividades boa bom boas capacidade conhecimento conhecimentos desejável diferencial equipe equipes excelente experiência experiências oferecemos requisitos responsabilidades time vaga',
+  /* Italian */
+  'ad agli ai alla alle allo anche che chi ci dal dalla dei del della delle dello di gli il io lo loro ma mi nei nel nella noi non più sia sua sue suo suoi tra vi',
+  'anni anno buona buone capacità conoscenza conoscenze esperienza offriamo ottima ottime profilo requisiti ruolo squadra',
+  /* Dutch */
+  'aan al als bij dan dat deze die dit door een er haar heb hebben het hij hoe hun ik jij jouw maar mijn naar niet nog nu om onder ons onze ook op over te tot uit uw van veel voor wat wel wie wij wordt zal ze zij zijn zo',
+  'bieden ervaring functie goede jaar jaren kandidaat kennis profiel uitstekende vaardigheden'
+].join(' ').split(/\s+/).map(foldWord));
+
+/* Lowercase without accents, so "Expérience" and "experience" compare equal */
+function foldWord(word) {
+  return word.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+}
+
+function stemWord(word) {
+  if (/[^\p{L}]/u.test(word)) return word; /* C++, Node.js, B2B: compared as written */
+  for (let pass = 0; pass < 2; pass++) {
+    const suffix = JOB_STEM_SUFFIXES.find(function(s) { return word.length - s.length >= 4 && word.endsWith(s); });
+    if (!suffix) break;
+    word = word.slice(0, -suffix.length);
+  }
+  return word.length >= 5 && word.endsWith('e') ? word.slice(0, -1) : word;
+}
+
+/* Text -> segments between punctuation and line breaks; every word with its stem */
+function jobSegments(text) {
+  return text.split(/[\n\r•·▪●;:!?()[\]{}"“”„|]+|[.,](?=\s|$)|\s[-–—]\s|[–—]/).map(function(segment) {
+    if (segment === segment.toUpperCase()) segment = segment.toLowerCase(); /* headings in capitals */
+    const words = [];
+    (segment.match(JOB_WORD) || []).forEach(function(raw, index) {
+      raw = raw.replace(/['’]s$/, '');
+      /* "Stakeholder-Management" and "stakeholder management" are the same words */
+      const pieces = JOB_STOP_WORDS.has(foldWord(raw)) ? [raw] : raw.split(/-+/).filter(Boolean);
+      pieces.forEach(function(piece, h) {
+        /* "SQL/Python" is two skills; "CI/CD" and "A/B" are one */
+        const parts = piece.includes('/') && piece.split('/').some(function(p) { return p.length > 3; }) ? piece.split('/') : [piece];
+        parts.forEach(function(part, i) {
+          const fold = foldWord(part).replace(/^[.'’]+|[.'’]+$/g, '');
+          const caps = part.length > 1 && /\p{Lu}/u.test(part) && !/\p{Ll}/u.test(part); /* SQL, AWS, IT */
+          words.push({
+            raw: part, fold: fold, stem: stemWord(fold), split: i > 0, caps: caps,
+            first: index === 0 && h === 0 && i === 0,
+            special: caps || /[^\p{L}'’-]/u.test(part),
+            capital: (index > 0 || h > 0) && /^\p{Lu}/u.test(part)
+          });
+        });
+      });
+    });
+    return words;
+  });
+}
+
+function jobRelevantText(text) {
+  let skip = false;
+  return text.split(/\r?\n/).filter(function(line) {
+    const heading = line.trim().length <= 60;
+    if (heading && JOB_SKIP_HEADING.test(line)) skip = true;
+    else if (heading && JOB_KEEP_HEADING.test(line)) skip = false;
+    return !skip;
+  }).join('\n');
+}
+
+/* The job ad's key terms: single words and phrases of up to three words */
+function jobKeyTerms(text, ignored) {
+  text = jobRelevantText(text);
+  /* German capitalises every noun: there capitals say nothing, and lowercase words are verbs and adjectives */
+  const german = detectLanguage(text) === 'de';
+  const stats = {};
+  jobSegments(text).forEach(function(segment) {
+    const chunks = [[]];
+    segment.forEach(function(w) {
+      const stop = !w.caps && (w.fold.length < 2 || !/\p{L}/u.test(w.fold) || JOB_STOP_WORDS.has(w.fold) ||
+        (w.first && JOB_LEAD_VERBS.has(w.fold)) || (!chunks[chunks.length - 1].length && JOB_PHRASE_VERBS.has(w.fold)) ||
+        (german && !w.special && !/^\p{Lu}/u.test(w.raw)));
+      if (stop || w.split) chunks.push([]);
+      if (!stop) chunks[chunks.length - 1].push(w);
+    });
+    chunks.forEach(function(chunk) {
+      for (let n = 1; n <= 3; n++) {
+        for (let i = 0; i + n <= chunk.length; i++) {
+          const words = chunk.slice(i, i + n);
+          const key = words.map(function(w) { return w.stem; }).join(' ');
+          const marked = words.filter(function(w) { return w.special || (w.capital && !german); }).length;
+          const term = stats[key] || (stats[key] = { key: key, n: n, count: 0, whole: false, marked: -1 });
+          term.count++;
+          if (n === chunk.length) term.whole = true;
+          /* Show the spelling that carries the most capitals the ad meant (Jira, SQL) */
+          if (marked > term.marked) {
+            term.marked = marked;
+            term.label = words.map(function(w) { return w.special || w.capital || german ? w.raw : w.raw.toLowerCase(); }).join(' ');
+          }
+        }
+      }
+    });
+  });
+
+  const terms = Object.keys(stats).map(function(k) { return stats[k]; }).filter(function(t) { return !ignored.includes(t.key); });
+  terms.forEach(function(t) { t.score = t.count * [0, 1, 2.2, 2][t.n] + (t.marked > 0 ? 2 : 0) + (t.whole && t.n > 1 ? 1 : 0); });
+  const byScore = function(a, b) { return b.score - a.score || b.n - a.n; };
+  const inside = function(outer, inner) { return outer.n > inner.n && (' ' + outer.key + ' ').includes(' ' + inner.key + ' '); };
+  const chosen = [];
+  /* Phrases first, then single words that also occur outside the chosen phrases */
+  const pick = function(t, limit) {
+    const covered = chosen.filter(function(p) { return inside(p, t); }).reduce(function(s, p) { return s + p.count; }, 0);
+    if (chosen.length < limit && t.count > covered) chosen.push(t);
+  };
+  terms.filter(function(t) { return t.n > 1 && (t.count >= 2 || t.whole); }).sort(byScore)
+    .forEach(function(t) { pick(t, JOB_MAX_PHRASES); });
+  terms.filter(function(t) { return t.n === 1 && (t.count >= 2 || t.marked > 0 || german) && (t.key.length > 2 || t.marked > 0); }).sort(byScore)
+    .forEach(function(t) { pick(t, JOB_MAX_TERMS); });
+  return chosen.sort(byScore);
+}
+
+/* found: the phrase is in the CV; apart: all its words are, but not together */
+function matchJobTerms(terms, cvText) {
+  const stems = new Set(), sequence = [];
+  jobSegments(cvText).forEach(function(segment) {
+    segment.forEach(function(w) { stems.add(w.stem); sequence.push(w.stem); });
+    sequence.push('|');
+  });
+  const joined = ' ' + sequence.join(' ') + ' ';
+  return terms.map(function(t) {
+    const status = joined.includes(' ' + t.key + ' ') ? 'found'
+      : t.n > 1 && t.key.split(' ').every(function(s) { return stems.has(s); }) ? 'apart' : 'missing';
+    return Object.assign({ status: status }, t);
+  });
+}
+
+function onAtsJobInput(value) {
+  onAtsField('jobAd', value);
+  clearTimeout(state.atsJobTimer);
+  state.atsJobTimer = setTimeout(renderAtsJob, 250);
+}
+
+function ignoreJobTerm(key) {
+  const name = getActiveContentName(), meta = getContentMeta(name);
+  meta.jobIgnore = (meta.jobIgnore ? meta.jobIgnore + '\n' : '') + key;
+  setContentMeta(name, meta);
+  renderAtsJob();
+}
+
+function restoreJobTerms() {
+  const name = getActiveContentName(), meta = getContentMeta(name);
+  delete meta.jobIgnore;
+  setContentMeta(name, meta);
+  renderAtsJob();
+}
+
+function renderAtsJob() {
+  clearTimeout(state.atsJobTimer);
+  const meta = getContentMeta(getActiveContentName());
+  const box = document.getElementById('ats-job-result');
+  const ad = (meta.jobAd || '').trim();
+  if (!ad) { box.innerHTML = ''; return; }
+  const ignored = (meta.jobIgnore || '').split('\n').filter(Boolean);
+  const terms = matchJobTerms(jobKeyTerms(ad, ignored), cvPlainText(parseMD(state.currentMD)));
+  const restore = ignored.length ? '<p class="ats-job-ignored">' + ignored.length + ' term' + (ignored.length === 1 ? '' : 's') +
+    ' ignored · <button onclick="restoreJobTerms()">Show again</button></p>' : '';
+  if (!terms.length) { box.innerHTML = '<p class="ats-job-ignored">No key terms found yet. Paste more of the ad.</p>' + restore; return; }
+
+  const by = function(status) { return terms.filter(function(t) { return t.status === status; }); };
+  const found = by('found'), apart = by('apart'), missing = by('missing');
+  const percent = Math.round((found.length + apart.length / 2) / terms.length * 100);
+  const chips = function(list) {
+    return '<div class="ats-terms">' + list.map(function(t) {
+      return '<span class="ats-term ' + t.status + '">' + esc(t.label) + (t.count > 1 ? ' <small>×' + t.count + '</small>' : '') +
+        '<button title="Not relevant – ignore" onclick="ignoreJobTerm(' + JSON.stringify(t.key).replace(/&/g, '&amp;').replace(/"/g, '&quot;') + ')">×</button></span>';
+    }).join('') + '</div>';
+  };
+  const group = function(list, title, hint) {
+    return list.length ? '<div class="ats-job-group"><h5>' + title + ' (' + list.length + ')</h5>' + (hint ? '<p>' + hint + '</p>' : '') + chips(list) + '</div>' : '';
+  };
+  box.innerHTML =
+    '<div class="ats-job-score"><div class="ats-job-meter"><span style="width:' + percent + '%"></span></div>' +
+    '<span><strong>' + percent + '% match</strong> · your CV uses ' + found.length + ' of the ' + terms.length + ' key terms' +
+    (apart.length ? ', and the words of ' + apart.length + ' more' : '') + '</span></div>' +
+    group(missing, 'Not in your CV', 'Add the ones that are true for you, in the words of the ad. Leave out anything you could not back up in an interview.') +
+    group(apart, 'Words there, but not together', 'Recruiters often search for the exact phrase.') +
+    group(found, 'Already in your CV', '') + restore;
 }
 
 /* ================================================================
@@ -5205,6 +5907,7 @@ function deleteContentVersion(name) {
       delete presets[name];
       setContentPresets(presets);
       const links = getContentDesigns(); delete links[name]; localStorage.setItem(CONTENT_DESIGNS, JSON.stringify(links));
+      setContentMeta(name, null);
       renderLibrary();
     });
     return;
@@ -5236,7 +5939,7 @@ function deleteDesign(name) {
 function openDownloadModal() {
   const modal = document.getElementById('download-modal');
   const input = document.getElementById('pdf-filename');
-  if (!input.value) input.value = (state.currentName || 'CV').replace(/\s+/g, '_') + '_CV';
+  if (!input.value) input.value = cvMeta().filename;
   modal.classList.add('open');
   input.focus();
   input.select();
@@ -5247,7 +5950,9 @@ function closeDownloadModal(e) {
   document.getElementById('download-modal').classList.remove('open');
 }
 
-function printCV() {
+/* oneColumn: the sidebar stacks above the main column and the pages flow freely,
+   so no parser can run the two columns together. Same fonts and colours. */
+function printCV(oneColumn) {
   closeDownloadModal();
 
   /* Collect all page elements */
@@ -5275,9 +5980,11 @@ function printCV() {
     pagesHTML += clone.outerHTML;
   });
 
-  /* Build the print document — print overrides MUST come after copied styles */
-  var html = '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">';
-  html += '<title>' + esc(state.currentName || 'CV') + '</title>';
+  /* Build the print document — print overrides MUST come after copied styles.
+     The browser turns <title> and <html lang> into the PDF's Title and language. */
+  var meta = cvMeta();
+  var html = '<!DOCTYPE html><html lang="' + esc(meta.language) + '"><head><meta charset="UTF-8">';
+  html += '<title>' + esc(meta.title) + '</title>';
   html += styles;
   html += '<style>';
   html += ':root{' + cssVars + '}';
@@ -5290,6 +5997,7 @@ function printCV() {
   html += '.page:last-child,.page-extra:last-child{page-break-after:auto}';
   html += '.panel,.modal-overlay,.toast,.format-panel,.format-panel-toggle,.tab-bar,.editor-view,.configuration-view,.page-nav,.confirm-overlay{display:none !important}';
   html += '@media print{html,body{height:auto !important;overflow:visible !important}}';
+  if (oneColumn) html += oneColumnPrintCss();
   html += '</style>';
   html += '</head><body>' + pagesHTML + '</body></html>';
 
@@ -5311,6 +6019,24 @@ function printCV() {
   setTimeout(doPrint, 500);
 }
 
+/* The page margins move to @page so that every printed sheet gets them, not just the first */
+function oneColumnPrintCss() {
+  var v = function(key) { return getComputedStyle(document.documentElement).getPropertyValue('--' + key).trim(); };
+  return '@page{size:A4;margin:' + v('page-margin-top') + ' ' + v('page-margin-right') + ' ' + v('page-margin-bottom') + ' ' + v('page-margin-left') + '}' +
+    'html,body{width:auto !important}' +
+    '.page,.page-extra{display:block !important;width:auto !important;height:auto !important;min-height:0 !important;overflow:visible !important;page-break-after:auto !important;background:none !important}' +
+    '.header,.sidebar,.main,.page-extra-content{padding:0 !important}' +
+    '.content{display:block !important;margin-top:var(--content-gap)}' +
+    '.sidebar{width:auto !important;min-width:0 !important}' +
+    '.main,.page-extra-content{margin-top:var(--content-gap)}' +
+    '.blue-bar,.page-extra-header{display:none !important}' +
+    /* The square photo keeps its sidebar width instead of spanning the page */
+    '.cv-photo--square{width:calc(var(--sidebar-width) - var(--page-margin-left) - var(--col-gap))}' +
+    '.cv-photo--circle{top:0;right:0}' +
+    'h2,.spacer-heading,.entry-org,.entry-role{break-after:avoid}' +
+    '.entry,.contact-item,li{break-inside:avoid}';
+}
+
 function confirmDownload() {
   document.getElementById('download-modal').classList.remove('open');
   loadHtml2Pdf().then(function() {
@@ -5329,7 +6055,7 @@ function confirmDownload() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
-      html2pdf().set(opt).from(allPages[0]).save();
+      html2pdf().set(opt).from(allPages[0]).toPdf().get('pdf').then(applyPdfProperties).save();
     } else {
       /* Build a wrapper with all pages visible, each exactly 297mm tall.
          Use html2canvas total height = N * a4HeightPx so jsPDF splits cleanly. */
@@ -5356,7 +6082,7 @@ function confirmDownload() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
-      html2pdf().set(opt).from(wrapper).save().then(function() {
+      html2pdf().set(opt).from(wrapper).toPdf().get('pdf').then(applyPdfProperties).save().then(function() {
         document.body.removeChild(wrapper);
       });
     }

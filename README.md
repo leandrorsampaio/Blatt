@@ -47,6 +47,8 @@ That's it. Your work auto-saves to your browser as you type.
 - **Live A4 preview** — what you see is exactly what prints.
 - **Simple editing** — a live preview alongside a friendly form-based editor (no Markdown required).
 - **Photo** — upload one, frame it with drag + zoom, optionally make it black & white, and place it either as a square at the top of the sidebar or as a circle in the top-right corner. Size and border are adjustable; it appears on page 1 only.
+- **ATS tab** — set the PDF's title, language, author, subject, keywords and file name per CV version; check that a parser finds your name, email, phone, standard headings and dates; paste a job ad to see which of its key terms your CV is missing; and see the order in which applicant-tracking systems read your two columns.
+- **One-column Text PDF** — the same design with the sidebar stacked above the main column, for job portals whose parsers mix up columns.
 - **Multi-page support** — content flows to additional pages with customizable headers.
 - **Content presets** — keep multiple versions of your CV (e.g. *English*, *German*, *Short*) side by side.
 - **Format presets** — save and reuse complete look-and-feel configurations; import/export as JSON.
