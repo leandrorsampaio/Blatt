@@ -2889,7 +2889,8 @@ const state = {
   photoImg:         null,    /* decoded source image, only while the Photo tab is used */
   photoDrag:        null,    /* pointer drag bookkeeping for the crop stage */
   photoCommitTimer: null,
-  sync:             { active: false, busy: false, blocked: false, lastPollHash: null, dirtySince: 0, failedHash: null },
+  sync:             { active: false, busy: false, blocked: false, stale: false, lastPollHash: null, dirtySince: 0,
+                      failedHash: null, inflight: null, timer: null },
 };
 
 /* ================================================================
@@ -2929,32 +2930,41 @@ document.addEventListener('keydown', function(e) {
 
 function scheduleAutoSave() {
   clearTimeout(state.autoSaveTimer);
-  state.autoSaveTimer = setTimeout(function() {
-    const active = getActiveContentName();
-    if (document.getElementById('editor-view').classList.contains('active')) {
-      state.currentMD = editorToMD();
-    }
-    if (active !== 'Default') {
-      const presets = getContentPresets();
-      presets[active] = state.currentMD;
-      setContentPresets(presets);
-    } else {
-      /* Persist edits to the Default CV so they survive a reload */
-      setDefaultMD(state.currentMD);
-    }
-    /* Also persist format */
-    const fmtActive = getActivePresetName();
-    if (fmtActive !== 'Default') {
-      const fmtPresets = getPresets();
-      fmtPresets[fmtActive] = { ...state.currentFormat };
-      setPresets(fmtPresets);
-    }
-    const ind = document.getElementById('save-indicator');
-    ind.textContent = 'Auto-saved';
-    ind.classList.remove('unsaved');
-    ind.classList.add('saving');
-    setTimeout(function() { ind.classList.remove('saving'); }, 1200);
-  }, 1500);
+  state.autoSaveTimer = setTimeout(runAutoSave, 1500);
+}
+
+/* Write a pending auto-save now (server sync needs localStorage up to date). */
+function flushAutoSave() {
+  if (state.autoSaveTimer) runAutoSave();
+}
+
+function runAutoSave() {
+  clearTimeout(state.autoSaveTimer);
+  state.autoSaveTimer = null;
+  const active = getActiveContentName();
+  if (document.getElementById('editor-view').classList.contains('active')) {
+    state.currentMD = editorToMD();
+  }
+  if (active !== 'Default') {
+    const presets = getContentPresets();
+    presets[active] = state.currentMD;
+    setContentPresets(presets);
+  } else {
+    /* Persist edits to the Default CV so they survive a reload */
+    setDefaultMD(state.currentMD);
+  }
+  /* Also persist format */
+  const fmtActive = getActivePresetName();
+  if (fmtActive !== 'Default') {
+    const fmtPresets = getPresets();
+    fmtPresets[fmtActive] = { ...state.currentFormat };
+    setPresets(fmtPresets);
+  }
+  const ind = document.getElementById('save-indicator');
+  ind.textContent = 'Auto-saved';
+  ind.classList.remove('unsaved');
+  ind.classList.add('saving');
+  setTimeout(function() { ind.classList.remove('saving'); }, 1200);
 }
 
 /* ================================================================
@@ -5206,7 +5216,7 @@ function printCV() {
 
   /* Build the print document — print overrides MUST come after copied styles */
   var html = '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">';
-  html += '<title>' + (state.currentName || 'CV') + '</title>';
+  html += '<title>' + esc(state.currentName || 'CV') + '</title>';
   html += styles;
   html += '<style>';
   html += ':root{' + cssVars + '}';
@@ -5601,6 +5611,7 @@ function renderPhotoOutput() {
 function commitPhotoFraming(immediate) {
   clearTimeout(state.photoCommitTimer);
   var run = function() {
+    state.photoCommitTimer = null;
     var data = renderPhotoOutput();
     if (!data) return;
     state.photo.image = data;
@@ -6341,48 +6352,88 @@ async function syncPull() {
     if (state.sync.active) setSyncStatus('offline');
     return;
   }
-  /* 401 only ever comes from a Blatt server: the page is ours, the sign-in expired */
-  if (res.status === 401) { syncActivate(); syncSignedOut(); return; }
-  var server = null;
-  if (res.ok && /json/.test(res.headers.get('Content-Type') || '')) {
-    try { server = await res.json(); } catch (err) { server = null; }
+  var body = null;
+  if (/json/.test(res.headers.get('Content-Type') || '')) {
+    try { body = await res.json(); } catch (err) { body = null; }
   }
-  if (!server || typeof server.rev !== 'number') {
+  /* A Blatt server says "signed-out" in the body; a bare 401 from some other host is ignored */
+  if (res.status === 401 && body && body.error === 'signed-out') { syncActivate(); syncSignedOut(); return; }
+  if (!res.ok || !body || typeof body.rev !== 'number') {
     if (state.sync.active) setSyncStatus('error');
     return; /* not a Blatt server (static hosting) -- stay a plain offline app */
   }
   syncActivate();
-  syncReconcile(server);
+  syncReconcile(body);
 }
 
 function syncActivate() {
-  if (state.sync.active) return;
-  state.sync.active = true;
-  setInterval(syncPoll, SYNC_POLL_MS);
+  var s = state.sync;
+  if (s.active) return;
+  s.active = true;
+  s.timer = setInterval(syncPoll, SYNC_POLL_MS);
   document.addEventListener('visibilitychange', function() {
-    if (document.hidden) syncPoll(true);  /* leaving the tab: save now */
-    else syncPull();                      /* coming back: another device may have saved */
+    if (document.hidden) { syncPoll(true); return; }  /* leaving the tab: save now */
+    if (s.stale) { location.reload(); return; }       /* another tab changed the CV meanwhile */
+    syncPull();                                        /* coming back: another device may have saved */
   });
+  /* Another tab of this browser changed the CV: this tab's in-memory copy is now
+     stale and must not be auto-saved over it, so restart on the shared copy. */
+  window.addEventListener('storage', function(e) {
+    if (!e.key || !(e.key === SYNC_META_KEY || e.key.startsWith(SYNC_PREFIX))) return;
+    s.stale = true;
+    clearTimeout(state.autoSaveTimer);
+    clearTimeout(state.photoCommitTimer);
+    var modalOpen = document.querySelector('.modal-overlay.open, .confirm-overlay.open');
+    if (!document.hidden && !modalOpen) location.reload();
+  });
+}
+
+/* Sync decides from localStorage, so write any edit still waiting in a debounce timer. */
+function syncFlushPending() {
+  flushAutoSave();
+  if (state.photoCommitTimer) commitPhotoFraming(true);
+}
+
+/* Unsaved work in a browser that has never synced (e.g. used here before the server existed) */
+function syncHasLocalWork() {
+  if (localStorage.getItem(CONTENT_DEFAULT)) return true;
+  if (Object.keys(getContentPresets()).length) return true;
+  return !!(state.photo && state.photo.image && !state.photo.placeholder);
 }
 
 /* Decide who is ahead: this browser, the server, or both (a conflict). */
 function syncReconcile(server) {
-  if (state.sync.blocked) return;
+  if (state.sync.blocked || state.sync.stale) return;
+  syncFlushPending();
   var meta = getSyncMeta();
   var snap = syncSnapshot();
   var hash = syncHash(snap);
-  if (!server.data) return syncPush(0, snap);          /* empty server: seed it from this browser */
-  if (!meta) return syncApply(server);                 /* new browser: take the server's copy */
+  if (!server.data) return syncPush(0, snap);            /* empty server: seed it from this browser */
+  /* Same content on both sides (e.g. a save whose reply was lost): just agree on the revision */
+  if (syncHash(JSON.stringify(server.data)) === hash) {
+    setSyncMeta(server.rev, hash);
+    setSyncStatus('synced');
+    return;
+  }
+  if (!meta) return syncHasLocalWork() ? syncConflict(server) : syncApply(server);
   if (meta.rev === server.rev) {
     if (hash !== meta.hash) return syncPush(meta.rev, snap);
     setSyncStatus('synced');
     return;
   }
-  if (hash === meta.hash) return syncApply(server);    /* only the server moved on */
+  /* Only the server moved on -- unless it went backwards (restored from a backup) */
+  if (hash === meta.hash && server.rev > meta.rev) return syncApply(server);
   syncConflict(server);
 }
 
-async function syncPush(baseRev, snap) {
+/* Every push goes through here, so callers can wait for the one in flight. */
+function syncPush(baseRev, snap) {
+  var s = state.sync;
+  s.inflight = syncPushNow(baseRev, snap).finally(function() { s.inflight = null; });
+  return s.inflight;
+}
+
+async function syncPushNow(baseRev, snap) {
   var s = state.sync;
   s.busy = true;
   setSyncStatus('pending');
@@ -6416,12 +6467,12 @@ async function syncPush(baseRev, snap) {
 /* Runs every few seconds: push once local changes have settled (or waited too long). */
 function syncPoll(force) {
   var s = state.sync;
-  if (!s.active || s.busy || s.blocked || (document.hidden && !force)) return;
+  if (!s.active || s.busy || s.blocked || s.stale || (document.hidden && !force)) return;
   var snap = syncSnapshot();
   var hash = syncHash(snap);
   var meta = getSyncMeta();
   if (meta && hash === meta.hash) { s.dirtySince = 0; s.lastPollHash = hash; return; }
-  if (hash === s.failedHash && !force) return;
+  if (hash === s.failedHash) return;  /* already refused as too large; wait for the next change */
   var settled = hash === s.lastPollHash;
   s.lastPollHash = hash;
   if (!s.dirtySince) s.dirtySince = Date.now();
@@ -6440,6 +6491,7 @@ function syncApply(server) {
   }
   state.sync.blocked = true;
   clearTimeout(state.autoSaveTimer);
+  clearTimeout(state.photoCommitTimer);
   try {
     syncClearLocal();
     Object.keys(data.keys).forEach(function(k) {
@@ -6495,11 +6547,14 @@ function syncStatusAction() {
 /* Signing out also removes the CV from this browser (it is safe on the
    server), so nothing personal is left behind on a shared computer. */
 async function syncSignOut() {
+  syncFlushPending();
+  if (state.sync.inflight) await state.sync.inflight;
   if (!state.sync.blocked) await syncPoll(true);
   var meta = getSyncMeta();
   if (meta && syncHash(syncSnapshot()) === meta.hash) {
     state.sync.blocked = true;
     clearTimeout(state.autoSaveTimer);
+    clearTimeout(state.photoCommitTimer);
     syncClearLocal();
     location.href = 'auth/logout';
     return;

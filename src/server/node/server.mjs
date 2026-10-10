@@ -57,9 +57,11 @@ export function createNodeServer({ env = process.env, appHtmlPath, dataDir, fetc
 
   return http.createServer(async (req, res) => {
     try {
+      /* Only uploads (PUT api/data) carry a body worth reading; anything else is discarded unread */
       const chunks = [];
       let size = 0;
-      for await (const chunk of req) {
+      if (req.method !== 'PUT') req.resume();
+      else for await (const chunk of req) {
         size += chunk.length;
         if (size > MAX_BODY_BYTES) {
           res.writeHead(413, { 'Content-Type': 'application/json' });
@@ -71,7 +73,7 @@ export function createNodeServer({ env = process.env, appHtmlPath, dataDir, fetc
       const request = new Request('http://' + (req.headers.host || 'localhost') + req.url, {
         method: req.method,
         headers: Object.entries(req.headers).flatMap(([k, v]) => (Array.isArray(v) ? v.map((x) => [k, x]) : [[k, v]])),
-        body: req.method === 'GET' || req.method === 'HEAD' ? undefined : Buffer.concat(chunks),
+        body: req.method === 'PUT' ? Buffer.concat(chunks) : undefined,
       });
       const response = await handle(request);
       const headers = {};
@@ -88,9 +90,23 @@ export function createNodeServer({ env = process.env, appHtmlPath, dataDir, fetc
   });
 }
 
+/* Without PUBLIC_URL the address is taken from each request's Host header over plain
+   http -- only right for a local try-out. Reachable from elsewhere, insist on it. */
+export function publicUrlProblem(env, host) {
+  if ((env.PUBLIC_URL || '').trim()) return null;
+  if (host === '127.0.0.1' || host === 'localhost' || host === '::1') return null;
+  return 'PUBLIC_URL is not set. Set it to the address people open (e.g. https://cv.example.com) ' +
+    'when the server listens on ' + host + '. See src/server/README.md.';
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT || 8080);
   const host = process.env.HOST || '127.0.0.1';
+  const problem = publicUrlProblem(process.env, host);
+  if (problem) {
+    console.error('Blatt server not started: ' + problem);
+    process.exit(1);
+  }
   createNodeServer().listen(port, host, () => {
     console.log('Blatt server listening on http://' + host + ':' + port +
       (process.env.PUBLIC_URL ? ' (public address ' + process.env.PUBLIC_URL + ')' : ''));

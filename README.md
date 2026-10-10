@@ -101,7 +101,7 @@ Detail: Led the redesign of the core product.
 
 ## Tech & architecture
 
-The whole application is one `cv.html` file (~5,000 lines: CSS + HTML + vanilla JS), with the CV content and the PDF library embedded inline. The only pieces bundled are a self-contained copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime** (when self-hosted, it talks only to your own server).
+The whole application is one `cv.html` file (~6,600 lines: CSS + HTML + vanilla JS), with the CV content and the PDF library embedded inline. The only pieces bundled are a self-contained copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime** (when self-hosted, it talks only to your own server).
 
 Source assets live in `src/`:
 

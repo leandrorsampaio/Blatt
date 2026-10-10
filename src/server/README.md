@@ -61,6 +61,8 @@ npx wrangler deploy
 
 Until the settings below are in place, the address shows a page listing what's missing. That's expected.
 
+On the first deploy, wrangler may write the new database's ID into `wrangler.toml`. You don't need to keep that change: later deploys find the database by name either way.
+
 Now finish [step 1](#1-create-the-google-sign-in-client) with that address, then set the settings as secrets:
 
 ```sh
@@ -75,7 +77,13 @@ Open your address. Google asks you to sign in, and then Blatt opens.
 
 **Custom domain:** in the Cloudflare dashboard go to *Workers & Pages → blatt → Settings → Domains & Routes*, add the domain, then add `https://<domain>/auth/callback` as a redirect URI in Google.
 
-**Updating:** `git pull`, then `npx wrangler deploy` from the same folder.
+**Updating:** from the same folder, run:
+
+```sh
+git checkout -- wrangler.toml   # drop the database ID wrangler may have added
+git pull
+npx wrangler deploy
+```
 
 ---
 
@@ -118,6 +126,8 @@ cv.example.com {
 
 Your data is a single file, `blatt-data.json`. It lives in the `/data` volume (Docker) or in `DATA_DIR` (Node; default `src/server/node/data/`, which git ignores). Back that file up.
 
+The container runs as the unprivileged `node` user (uid 1000). A named volume, as in the example above, just works. If you mount a host folder instead (`-v /srv/blatt:/data`), make it writable first: `sudo chown 1000:1000 /srv/blatt`.
+
 **Try it on your own computer first:** set `PUBLIC_URL=http://localhost:8080`, add `http://localhost:8080/auth/callback` as a redirect URI in Google, and open <http://localhost:8080>.
 
 ---
@@ -130,7 +140,7 @@ Your data is a single file, `blatt-data.json`. It lives in the `/data` volume (D
 | `GOOGLE_CLIENT_SECRET` | yes | From step 1 |
 | `ALLOWED_EMAIL` | yes | The one Google account allowed in |
 | `SESSION_SECRET` | yes | Random string, at least 32 characters; signs the sign-in cookie |
-| `PUBLIC_URL` | Node: yes · Cloudflare: no | The address people type, e.g. `https://cv.example.com` (a sub-path like `https://example.com/blatt` works too) |
+| `PUBLIC_URL` | Node: yes · Cloudflare: no | The address people type, e.g. `https://cv.example.com` (a sub-path like `https://example.com/blatt` works too). The Node server refuses to start without it, unless it only listens on `127.0.0.1` |
 | `PORT`, `HOST` | no | Node only: where to listen (default `127.0.0.1:8080`; the Docker image uses `0.0.0.0:8080`) |
 | `DATA_DIR` | no | Node only: folder for `blatt-data.json` |
 | `APP_HTML` | no | Node only: path to `cv.html` (default: the one in this repository) |

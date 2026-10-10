@@ -145,8 +145,12 @@ synced unit is a snapshot of every localStorage key starting with `cv-`, so **ne
 persistent state must use a `cv-` key to sync, and UI-only state must not**. The
 `blatt-sync` key holds `{ rev, hash }` of the last state agreed with the server.
 `syncPoll()` checks every 3s and pushes once changes settle; `syncReconcile()` decides
-push / pull / conflict; pulling replaces the `cv-*` keys and reloads the page rather
-than re-initialising in place. Signing out clears the `cv-*` keys from that browser.
+push / pull / conflict (identical content on both sides is never a conflict); pulling
+replaces the `cv-*` keys and reloads the page rather than re-initialising in place.
+Pending debounced writes (auto-save, photo framing) are flushed before any sync decision
+via `syncFlushPending()` -- a new debounced writer of `cv-*` keys must be added there and
+cancelled in `syncApply()`. A `storage` event from another tab reloads this one, so a
+stale tab never auto-saves over newer data. Signing out clears the `cv-*` keys.
 
 ## CSS Variable System
 
@@ -161,7 +165,7 @@ All visual formatting is controlled via CSS custom properties on `:root`:
 
 These are not bugs -- the app works well -- but they'll need attention as features grow:
 
-1. **Single-file monolith (~6300 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
+1. **Single-file monolith (~6600 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
 2. **Global state**: ~10 global variables manage app state. Plan: consolidate into a single `state` object.
 3. **Full editor re-render on every change**: `renderEditor()` rebuilds entire DOM via `innerHTML`, losing cursor position. Plan: targeted DOM updates.
 4. **HTML string concatenation**: Both renderer and editor build HTML via `html +=`. Works but fragile at scale.

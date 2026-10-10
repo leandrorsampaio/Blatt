@@ -136,19 +136,21 @@ function page(title, message, link, status = 200, cookies = []) {
  * @param {Function}[opts.now]          injectable clock for tests (ms)
  */
 export function createHandler(opts) {
-  const env = opts.env || {};
+  /* Settings are often pasted (or piped with a trailing newline) -- trim them all once */
+  const env = {};
+  for (const [k, v] of Object.entries(opts.env || {})) if (typeof v === 'string') env[k] = v.trim();
   const storage = opts.storage;
   const fetchImpl = opts.fetch || ((...args) => fetch(...args));
   const now = opts.now || (() => Date.now());
   const maxBodyBytes = opts.maxBodyBytes || 5_000_000;
 
-  const missing = REQUIRED_ENV.filter((k) => !env[k] || !String(env[k]).trim());
-  if (env.SESSION_SECRET && String(env.SESSION_SECRET).length < 32) missing.push('SESSION_SECRET (must be at least 32 characters)');
-  const allowedEmail = String(env.ALLOWED_EMAIL || '').trim().toLowerCase();
+  const missing = REQUIRED_ENV.filter((k) => !env[k]);
+  if (env.SESSION_SECRET && env.SESSION_SECRET.length < 32) missing.push('SESSION_SECRET (must be at least 32 characters)');
+  const allowedEmail = (env.ALLOWED_EMAIL || '').toLowerCase();
 
   let keyPromise = null;
   const hmacKey = () => keyPromise || (keyPromise = crypto.subtle.importKey(
-    'raw', encoder.encode(String(env.SESSION_SECRET)), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']));
+    'raw', encoder.encode(env.SESSION_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']));
 
   return async function handle(request) {
     const url = new URL(request.url);
