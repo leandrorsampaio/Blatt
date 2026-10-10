@@ -141,7 +141,7 @@
   /* Sections */
   section { padding: 80px 0; }
   .section-head { text-align: center; max-width: 640px; margin: 0 auto 52px; }
-  h2 { font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -.02em; margin: 0 0 14px; font-weight: 800; }
+  h2 { font-size: clamp(26px, 3.4vw, 38px); line-height: 1.2; letter-spacing: -.02em; margin: 0 0 14px; font-weight: 800; }
   .section-head p { color: var(--fg-soft); font-size: 17px; margin: 0; }
 
   /* Feature grid */
@@ -179,6 +179,10 @@
   .step h3 { margin: 0 0 6px; font-size: 17px; }
   .step p { margin: 0; color: var(--fg-soft); font-size: 15px; }
 
+  /* Self-host */
+  .alt { background: var(--bg-alt); }
+  .note { text-align: center; color: var(--fg-soft); font-size: 15px; margin: 32px auto 0; max-width: 640px; }
+
   /* Support */
   .support { text-align: center; }
   .support .coffee {
@@ -206,6 +210,7 @@
     <div class="nav-links">
       <a class="hide-sm" href="#features">Features</a>
       <a class="hide-sm" href="#why">Why Blatt</a>
+      <a class="hide-sm" href="#self-host">Self-host</a>
       <a class="hide-sm" href="https://github.com/leandrorsampaio/Blatt">GitHub</a>
       <a class="btn btn-primary btn-sm" href="https://github.com/leandrorsampaio/Blatt/releases/latest/download/cv.html">Download</a>
     </div>
@@ -264,7 +269,7 @@
       <div class="card">
         <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <h3>You own your data</h3>
-        <p>No accounts, no cloud, no analytics. Your CV is saved locally, on your machine — and only there.</p>
+        <p>No accounts, no analytics, no cloud of ours. Your CV lives on your machine — or on your own server, if you choose to self-host.</p>
       </div>
       <div class="card">
         <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
@@ -319,6 +324,36 @@
     <div class="cta-row" style="margin-top:44px">
       <a class="btn btn-primary" href="https://github.com/leandrorsampaio/Blatt/releases/latest/download/cv.html">Download Blatt</a>
       <a class="btn btn-ghost" href="https://github.com/leandrorsampaio/Blatt">View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<section id="self-host" class="alt">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Want it on every device?<br>Host it yourself.</h2>
+      <p>Run the very same <code>cv.html</code> on a server you control. Sign in with Google, and your CV follows you from laptop to phone — still nobody's cloud but yours.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><line x1="6" y1="7" x2="6.01" y2="7"/><line x1="6" y1="17" x2="6.01" y2="17"/></svg></div>
+        <h3>Your server, your choice</h3>
+        <p>Deploy to Cloudflare Workers on the free tier, run it with Docker, or on any machine with Node.js. No lock-in, no dependencies.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Private by default</h3>
+        <p>A Google sign-in that lets in exactly one account — yours. Everything, even the page itself, stays behind the login.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+        <h3>Synced, safely</h3>
+        <p>Edits save to your server automatically. If two devices change your CV at once, Blatt asks which version to keep — nothing is silently overwritten.</p>
+      </div>
+    </div>
+    <p class="note">Completely optional: the downloaded file keeps working fully offline, exactly as before.</p>
+    <div class="cta-row" style="margin-top:28px">
+      <a class="btn btn-primary" href="https://github.com/leandrorsampaio/Blatt/blob/main/src/server/README.md">Read the self-hosting guide</a>
     </div>
   </div>
 </section>
