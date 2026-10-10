@@ -3790,25 +3790,84 @@ function refreshSection(si) {
   /* Re-wire contenteditable and drop zones for this section */
   newEl.querySelectorAll('.ed-richtext').forEach(function(rt) {
     rt.addEventListener('input', function() { syncRichText(rt); markDirty(); });
+    rt.addEventListener('paste', onRichTextPaste);
   });
   setupEntryDropZones(newEl);
 }
 
-/* Parse contenteditable HTML back to markdown and sync to state */
+/* Rich text (contenteditable or pasted HTML) -> the Markdown subset Blatt stores:
+   **bold**, *italic*, [link](url), "- " bullets, one line per paragraph. Anything
+   else (styles, fonts, headings, tables, images) is reduced to its text. Walks the
+   DOM rather than regex-ing innerHTML, so entities like &nbsp; never leak through. */
+const MD_BLOCK_TAGS = /^(DIV|P|H[1-6]|UL|OL|BLOCKQUOTE|PRE|TABLE|THEAD|TBODY|TR|SECTION|ARTICLE|HEADER|FOOTER|ASIDE|DL|DT|DD|FIGURE|FIGCAPTION|ADDRESS|HR)$/;
+const MD_SKIP_TAGS = /^(SCRIPT|STYLE|TEMPLATE|NOSCRIPT|HEAD|TITLE|META|LINK|IMG|SVG|IFRAME|OBJECT|VIDEO|AUDIO|CANVAS|BUTTON|INPUT|SELECT|TEXTAREA)$/;
+
+function wrapInlineMd(text, open, close) {
+  if (!text.trim() || text.indexOf('\n') !== -1) return text;
+  var m = text.match(/^(\s*)([\s\S]*?)(\s*)$/);  /* keep surrounding spaces outside the markers */
+  return m[1] + open + m[2] + close + m[3];
+}
+
+function richNodesToMd(parent) {
+  var out = '';
+  var atLineStart = function() { return !out || out.charAt(out.length - 1) === '\n'; };
+  var breakLine = function() { if (!atLineStart()) out += '\n'; };
+  parent.childNodes.forEach(function(n) {
+    if (n.nodeType === 3) {
+      var t = n.nodeValue.replace(/[\s ]+/g, ' ');
+      if (t.trim() || !atLineStart()) out += t;  /* source-code whitespace between blocks */
+      return;
+    }
+    if (n.nodeType !== 1 || MD_SKIP_TAGS.test(n.tagName)) return;
+    var tag = n.tagName;
+    if (tag === 'BR') { out += '\n'; return; }
+    if (tag === 'LI') {
+      var item = richNodesToMd(n).trim();
+      if (item) { breakLine(); out += (item.startsWith('- ') ? '' : '- ') + item; breakLine(); }
+      return;
+    }
+    if (MD_BLOCK_TAGS.test(tag)) { breakLine(); out += richNodesToMd(n); breakLine(); return; }
+    var inner = richNodesToMd(n);
+    if (tag === 'A') {
+      var href = n.getAttribute('href') || '';
+      out += /^(https?:|mailto:)/i.test(href) ? wrapInlineMd(inner, '[', '](' + href + ')') : inner;
+      return;
+    }
+    /* Google Docs wraps everything in <b style="font-weight:normal">; Docs/Word mark bold via CSS */
+    var w = n.style ? n.style.fontWeight : '', fs = n.style ? n.style.fontStyle : '';
+    var bold = ((tag === 'B' || tag === 'STRONG') && !/^(normal|lighter|[1-5]00)$/.test(w)) || /^(bold|bolder|[6-9]00)$/.test(w);
+    var italic = ((tag === 'I' || tag === 'EM') && fs !== 'normal') || fs === 'italic';
+    if (bold) inner = wrapInlineMd(inner, '**', '**');
+    if (italic) inner = wrapInlineMd(inner, '*', '*');
+    out += inner;
+  });
+  return out;
+}
+
 function richTextToMd(el) {
-  return el.innerHTML
-    .replace(/<\/li>\s*/gi, '\n')
-    .replace(/<li>/gi, '- ')
-    .replace(/<\/?[uo]l>/gi, '\n')
-    .replace(/<b>|<strong>/gi, '**').replace(/<\/b>|<\/strong>/gi, '**')
-    .replace(/<i>|<em>/gi, '*').replace(/<\/i>|<\/em>/gi, '*')
-    .replace(/<a\s[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<div>/gi, '\n').replace(/<\/div>/gi, '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&apos;/g, "'")
-    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
-    .replace(/\n{3,}/g, '\n\n').trim();
+  return richNodesToMd(el).split('\n')
+    .map(function(line) { return line.replace(/^ +| +$/g, ''); })
+    .join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/* Plain-text clipboard -> the same Markdown subset (bullet glyphs become "- ") */
+function plainTextToMd(text) {
+  return String(text || '').replace(/\r\n?/g, '\n').replace(/[ \t]/g, ' ').split('\n')
+    .map(function(line) { return line.replace(/^\s*[•◦▪‣∙·*]\s+/, '- ').replace(/^\s*-\s+/, '- ').replace(/ +$/, ''); })
+    .join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/* Paste into a rich-text field: keep the words, paragraphs, bullets, bold/italic and
+   links; drop the source's styling. DOMParser builds an inert document: no scripts
+   run and no images load. */
+function onRichTextPaste(e) {
+  var cd = e.clipboardData;
+  if (!cd) return;
+  e.preventDefault();
+  var html = cd.getData('text/html');
+  var md = html ? richTextToMd(new DOMParser().parseFromString(html, 'text/html').body)
+                : plainTextToMd(cd.getData('text/plain'));
+  if (md) document.execCommand('insertHTML', false, mdToEditorHtml(md));
 }
 
 function syncRichText(rt) {
@@ -3965,6 +4024,7 @@ function renderEditor() {
   /* Activate contenteditable fields: sync to state on input */
   el.querySelectorAll('.ed-richtext').forEach(function(rt) {
     rt.addEventListener('input', function() { syncRichText(rt); markDirty(); });
+    rt.addEventListener('paste', onRichTextPaste);
   });
 
   /* Wire up drop zones for drag & drop */
@@ -4088,8 +4148,9 @@ function mdToEditorHtml(text) {
       if (!inList) { html += '<ul>'; inList = true; }
       html += '<li>' + mdInlineToHtml(line.trim().slice(2)) + '</li>';
     } else {
+      /* A closed list already ends the line, so no <br> after it */
       if (inList) { html += '</ul>'; inList = false; }
-      if (i > 0 && !inList) html += '<br>';
+      else if (i > 0) html += '<br>';
       html += mdInlineToHtml(line);
     }
   }
@@ -6567,7 +6628,7 @@ async function syncSignOut() {
 /* ================================================================
  *  STORAGE VERSION -- Schema versioning for future migrations
  * ================================================================ */
-var STORAGE_VERSION = 2;
+var STORAGE_VERSION = 3;
 
 function migrateStorage() {
   var current = parseInt(localStorage.getItem('cv-storage-version') || '0', 10);
@@ -6584,6 +6645,17 @@ function migrateStorage() {
         delete presets.Default;
         setContentPresets(presets);
       }
+    } catch (err) { /* Keep malformed legacy storage untouched. */ }
+  }
+
+  /* v3: the old rich-text converter saved pasted non-breaking spaces as a literal "&nbsp;" */
+  if (current < 3) {
+    try {
+      var fixNbsp = function(md) { return typeof md === 'string' ? md.replace(/&nbsp;/g, ' ') : md; };
+      if (localStorage.getItem(CONTENT_DEFAULT)) setDefaultMD(fixNbsp(localStorage.getItem(CONTENT_DEFAULT)));
+      const presets = getContentPresets();
+      Object.keys(presets).forEach(function(k) { presets[k] = fixNbsp(presets[k]); });
+      if (Object.keys(presets).length) setContentPresets(presets);
     } catch (err) { /* Keep malformed legacy storage untouched. */ }
   }
 
