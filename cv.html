@@ -5406,6 +5406,7 @@ const PHOTO_STAGE = 300;      /* crop stage size in CSS px */
 const PHOTO_OUTPUT = 700;     /* stored framed image size in px */
 const PHOTO_MAX_SOURCE = 900; /* uploads are downscaled to this long edge */
 const PHOTO_ZOOM_MAX = 3;
+const PHOTO_JPEG_QUALITY = 0.8; /* both stored copies; invisible in print, keeps storage and sync light */
 
 /* Shipped sample photo: a plain grey block so the default CV shows the feature */
 const PLACEHOLDER_PHOTO = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
@@ -5593,7 +5594,7 @@ function renderPhotoOutput() {
   out.width = PHOTO_OUTPUT;
   out.height = PHOTO_OUTPUT;
   paintPhotoInto(out.getContext('2d'), PHOTO_OUTPUT);
-  return out.toDataURL('image/jpeg', 0.85);
+  return out.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY);
 }
 
 /* Bakes the current framing into the stored image. Debounced while dragging. */
@@ -5797,7 +5798,7 @@ function ingestPhotoFile(file) {
       ctx.drawImage(img, 0, 0, w, h);
 
       var keepBw = !!(state.photo && state.photo.bw);
-      state.photo = { enabled: true, original: c.toDataURL('image/jpeg', 0.85), image: '',
+      state.photo = { enabled: true, original: c.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY), image: '',
                       zoom: 1, ox: 0, oy: 0, bw: keepBw, placeholder: false };
       loadPhotoStageImage(function() {
         centerPhoto();
