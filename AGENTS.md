@@ -177,6 +177,7 @@ The sample CV content ships with a fictional profile. The UI labels in the HTML 
 
 - No build tools, bundlers, or package managers (yet -- see roadmap)
 - No runtime network access: the Open Sans font and html2pdf.js are embedded inline in `cv.html`
+- The embedded Open Sans must stay **static** instances (one file per weight/style), never the Google Fonts variable font: Chrome's print-to-PDF embeds variable fonts as Type 3, which ATS parsers and upload virus scanners handle badly. Check with `pdffonts` -- the text PDF should list `CID TrueType`, not `Type 3`
 - All state is in localStorage -- no backend
 - Target: all modern browsers (Chrome, Firefox, Safari, Edge)
 - The `.claude/settings.local.json` allows bash commands for: `brew`, `python3`, `pip3`, `pdftotext`
