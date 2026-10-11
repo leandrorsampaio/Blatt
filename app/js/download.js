@@ -90,9 +90,11 @@ function printCV(oneColumn) {
   if (!printWindow) { showToast('Please allow pop-ups to print/export as PDF', 'error'); return; }
   printWindow.document.write(html);
   printWindow.document.close();
-  /* onload may not fire after document.write in some browsers — guard against
-     printing twice, and fall back to waiting until every stylesheet is in
-     (a link gets its .sheet once loaded), or 10s, so print always triggers. */
+  /* Print once every stylesheet is in (a link gets its .sheet once loaded) and
+     the fonts it lays out with have loaded -- the fonts only start loading at
+     layout, and printing before they arrive falls back to Helvetica. onload may
+     not fire after document.write in some browsers, so a timer starts this too;
+     printed guards against printing twice, and 10s + 5s caps the wait. */
   var printed = false;
   var doPrint = function() {
     if (printed) return;
@@ -101,14 +103,18 @@ function printCV(oneColumn) {
     printWindow.print();
   };
   var started = Date.now();
-  var waitForStyles = function() {
+  var printWhenReady = function() {
     if (printed) return;
-    var links = printWindow.document.querySelectorAll('link[rel="stylesheet"]');
+    var doc = printWindow.document;
+    var links = doc.querySelectorAll('link[rel="stylesheet"]');
     var loaded = Array.prototype.every.call(links, function(l) { return l.sheet; });
-    if (loaded || Date.now() - started > 10000) doPrint(); else setTimeout(waitForStyles, 100);
+    if (!loaded && Date.now() - started < 10000) { setTimeout(printWhenReady, 100); return; }
+    if (doc.body) void doc.body.offsetHeight;   /* lay out, so the fonts start loading */
+    var fonts = doc.fonts ? doc.fonts.ready : Promise.resolve();
+    Promise.race([fonts, new Promise(function(r) { setTimeout(r, 5000); })]).then(doPrint);
   };
-  printWindow.onload = doPrint;
-  setTimeout(waitForStyles, 500);
+  printWindow.onload = printWhenReady;
+  setTimeout(printWhenReady, 500);
 }
 
 /* The page margins move to @page so that every printed sheet gets them, not just the first */
