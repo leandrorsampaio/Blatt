@@ -1,0 +1,427 @@
+/* Blatt -- the A4 CV itself: page, header, sidebar, main column, photo, extra pages.
+   This is what prints. The app around it is in app.css. */
+
+/* cv.html's "can't find the app folder" notice: only seen while this file is missing */
+.missing-app { display: none !important; }
+
+:root {
+  /* ── CV Colors (these 3 define the printed PDF look) ── */
+  --color-black:        #000;
+  --color-blue:         #2c3e6b;
+  --color-grey:         #666;
+
+  /* ── Interface Colors (ui- prefix = only visible on screen, not in PDF) ── */
+  --ui-bg:              #fff;
+  --ui-blue-hover:      #1e2d4d;
+  --ui-grey-light:      #999;
+  --ui-border:          #e0e0e0;
+  --ui-hover:           #f0f0f0;
+
+  /* ── Font sizes ── */
+  --fs-name:            20pt;
+  --fs-heading:         13pt;   /* section titles + degree */
+  --fs-subtitle:        10pt;
+  --fs-sidebar-title:   10.5pt;
+  --fs-org:             9.5pt;
+  --fs-body:            9pt;
+  --fs-small:           8.5pt;  /* detail, dates, links, contact */
+
+  /* ── Spacing ── */
+  --page-margin-top:    10mm;
+  --page-margin-right:  10mm;
+  --page-margin-bottom: 10mm;
+  --page-margin-left:   10mm;
+  --col-gap:            5mm;
+  --content-gap:        2mm;    /* between main content sections on a page */
+  --sidebar-gap:        2mm;    /* between sidebar sections */
+  --heading-gap:        1mm;    /* below section headings */
+  --entry-gap:          1.5mm;  /* between organizations in a section */
+  --sub-entry-gap:      0.5mm;  /* between sub-entries in an organization */
+  --bullet-indent:      2mm;    /* space between bullet and text */
+  --line-height:        140;    /* global line height as % of font size */
+
+  /* ── Layout ── */
+  --sidebar-width:      66mm;
+  --bar-width:          12mm;
+
+  /* ── Photo ── */
+  --photo-size:         50;    /* slider position 0-100, mapped to mm in .cv-photo */
+  --photo-border-width: 5px;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: var(--fs-body);
+  line-height: calc(var(--line-height) / 100);
+  color: var(--color-black);
+  background: var(--ui-border);
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* ── Viewport: scrollable area holding the A4 page ── */
+.viewport {
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px 40px;
+  min-height: 100vh;
+  margin-left: 280px;
+  transform-origin: top center;
+  transition: margin-left 0.25s ease;
+}
+
+.viewport.full-width {
+  margin-left: 0;
+}
+
+/* ── Page ── */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  height: 297mm;
+  background: var(--ui-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+  position: relative; /* anchor for the absolutely positioned circular photo */
+}
+
+/* ── Header ── */
+.header {
+  padding: var(--page-margin-top) var(--page-margin-right) 0 var(--page-margin-left);
+  flex-shrink: 0;
+}
+
+.header h1 {
+  font-size: var(--fs-name);
+  font-weight: 700;
+  color: var(--color-black);
+  line-height: 1.15;
+}
+
+.header h1 .degree {
+  font-size: var(--fs-heading);
+  font-weight: 400;
+}
+
+.header .subtitle {
+  font-size: var(--fs-subtitle);
+  font-weight: 400;
+  color: var(--color-grey);
+  font-style: italic;
+}
+
+/* ── Content container: pushed to bottom of page, children top-aligned ── */
+.content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-top: auto;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  padding: 0 var(--col-gap) var(--page-margin-bottom) var(--page-margin-left);
+}
+
+.sidebar h2 {
+  font-size: var(--fs-sidebar-title);
+  font-weight: 700;
+  color: var(--color-blue);
+}
+
+.sidebar .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-small);
+  color: var(--color-grey);
+}
+
+.sidebar .contact-item .icon {
+  flex-shrink: 0;
+  width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar .contact-item .icon svg {
+  display: block;
+}
+
+.sidebar .contact-item a {
+  color: var(--color-grey);
+  text-decoration: none;
+}
+
+.sidebar p {
+  font-size: var(--fs-small);
+  font-weight: 400;
+  color: var(--color-grey);
+}
+
+.sidebar .links {
+  margin-top: var(--heading-gap);
+}
+
+.sidebar .links a {
+  display: block;
+  color: var(--color-grey);
+  text-decoration: none;
+  font-size: var(--fs-small);
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  font-size: var(--fs-small);
+  color: var(--color-grey);
+}
+
+.sidebar ul li::before {
+  content: "\2022";
+  margin-right: var(--bullet-indent);
+  color: var(--color-grey);
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  padding: 0 calc(var(--bar-width) + 4mm) var(--page-margin-bottom) var(--col-gap);
+}
+
+.main h2 {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--color-blue);
+}
+
+/* ── Spacer divs (explicit gaps between elements) ── */
+.spacer-content  { height: var(--content-gap);   width: 100%; }
+.spacer-sidebar  { height: var(--sidebar-gap);   width: 100%; }
+.spacer-heading  { height: var(--heading-gap);   width: 100%; }
+.spacer-entry    { height: var(--entry-gap);     width: 100%; }
+.spacer-sub      { height: var(--sub-entry-gap); width: 100%; }
+
+.entry-org {
+  font-size: var(--fs-org);
+  font-weight: 500;
+  color: var(--color-blue);
+}
+
+.entry-role {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.entry-role .role {
+  font-weight: 700;
+  font-size: var(--fs-body);
+  color: var(--color-black);
+}
+
+.entry-role .dates {
+  font-weight: 400;
+  font-size: var(--fs-small);
+  color: var(--color-grey);
+  white-space: nowrap;
+}
+
+.entry-detail {
+  font-size: var(--fs-small);
+  color: var(--color-grey);
+}
+
+.entry-detail em {
+  font-style: italic;
+}
+
+.entry-detail-list {
+  font-size: var(--fs-small);
+  color: var(--color-grey);
+  list-style: none;
+  padding-left: 0;
+}
+
+.entry-detail-list li::before {
+  content: "\2022";
+  margin-right: var(--bullet-indent);
+  color: var(--color-grey);
+}
+
+.entry-detail-list strong {
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.entry-detail strong {
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.entry-role .role .note {
+  font-weight: 400;
+  color: var(--color-grey);
+}
+
+/* ── Inline links in CV content: underline only, inherit color ── */
+.page a, .page-extra a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* ── Photo (first page only, either in the sidebar or the header corner) ──
+   The size slider is a 0-100 value; each placement maps it onto its own mm
+   range. The image is always cover-fitted and centred, so shrinking the frame
+   crops evenly from the edges. */
+.cv-photo {
+  overflow: hidden;
+  background-color: var(--ui-hover);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.cv-photo.has-border {
+  border: var(--photo-border-width) solid var(--color-blue);
+}
+
+/* Square: full sidebar width, height follows the slider (25mm → 70mm) */
+.cv-photo--square {
+  width: 100%;
+  height: calc(25mm + var(--photo-size) * 0.45mm);
+}
+
+/* Circle: ratio locked, diameter follows the slider (20mm → 45mm).
+   Absolutely positioned so it never displaces the name or subtitle. */
+.cv-photo--circle {
+  position: absolute;
+  top: var(--page-margin-top);
+  right: var(--page-margin-right);
+  width: calc(20mm + var(--photo-size) * 0.25mm);
+  height: calc(20mm + var(--photo-size) * 0.25mm);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* ── Blue decorative bar (stretches full height of bottom section) ── */
+.blue-bar {
+  width: var(--bar-width);
+  min-width: var(--bar-width);
+  background: var(--color-blue);
+  align-self: stretch;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    overflow: hidden;
+  }
+  .viewport {
+    padding: 0;
+    margin-left: 0;
+    min-height: auto;
+    transform: none !important;
+  }
+  .page {
+    box-shadow: none;
+  }
+  .panel, .modal-overlay, .toast { display: none !important; }
+}
+
+/* ── Extra pages (page 2+) ── */
+.page-extra {
+  width: 210mm;
+  height: 297mm;
+  background: var(--ui-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.page-extra-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6mm var(--page-margin-right) 6mm var(--page-margin-left);
+  border-bottom: 2px solid var(--color-blue);
+  flex-shrink: 0;
+}
+
+.page-extra-header-left {
+  flex: 1;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--color-grey);
+  text-align: left;
+}
+
+.page-extra-header-right {
+  flex: 1;
+  font-size: var(--fs-small);
+  font-weight: 400;
+  color: var(--color-grey);
+  text-align: right;
+}
+
+.page-extra-header-left strong,
+.page-extra-header-right strong {
+  font-weight: 700;
+}
+
+.page-extra-header-left em,
+.page-extra-header-right em {
+  font-style: italic;
+}
+
+.page-extra-content {
+  padding: var(--content-gap) var(--page-margin-right) var(--page-margin-bottom) var(--page-margin-left);
+}
+
+.page-extra-content.no-header {
+  padding-top: var(--page-margin-top);
+}
+
+/* Reuse main styles inside extra pages */
+.page-extra-content h2 { font-size: var(--fs-heading); font-weight: 700; color: var(--color-blue); }
+.page-extra-content .entry-org { font-size: var(--fs-org); font-weight: 500; color: var(--color-blue); }
+.page-extra-content .entry-role { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px; }
+.page-extra-content .entry-role .role { font-weight: 700; font-size: var(--fs-body); color: var(--color-black); }
+.page-extra-content .entry-role .role .note { font-weight: 400; color: var(--color-grey); }
+.page-extra-content .entry-role .dates { font-weight: 400; font-size: var(--fs-small); color: var(--color-grey); white-space: nowrap; }
+.page-extra-content .entry-detail { font-size: var(--fs-small); color: var(--color-grey); }
+.page-extra-content .entry-detail strong { font-weight: 600; color: var(--color-black); }
+.page-extra-content .entry-detail-list { font-size: var(--fs-small); color: var(--color-grey); list-style: none; padding-left: 0; }
+.page-extra-content .entry-detail-list li::before { content: "\2022"; margin-right: var(--bullet-indent); color: var(--color-grey); }
+.page-extra-content .entry-detail-list strong { font-weight: 600; color: var(--color-black); }

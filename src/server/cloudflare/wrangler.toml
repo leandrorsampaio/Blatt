@@ -3,8 +3,15 @@ name = "blatt"
 main = "worker.mjs"
 compatibility_date = "2025-09-01"
 
-# cv.html is bundled into the worker as text
-rules = [{ type = "Text", globs = ["**/*.html"], fallthrough = false }]
+# cv.html and its app/ folder are uploaded as static assets. The list of what to
+# upload is the .assetsignore file at the repository root. The worker runs first
+# on every request, so nothing is served before sign-in.
+[assets]
+directory = "../../.."
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "none"
+not_found_handling = "none"
 
 # No database_id needed: the first `npx wrangler deploy` creates the "blatt"
 # database in your account and reuses it on every later deploy.

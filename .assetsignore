@@ -1,0 +1,6 @@
+# Cloudflare Workers self-hosting (src/server/cloudflare): of this repository,
+# upload only the app itself -- cv.html and the app/ folder
+*
+!cv.html
+!app/
+!app/**

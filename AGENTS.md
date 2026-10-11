@@ -2,7 +2,7 @@
 
 ## What is this?
 
-**Blatt** (German for "sheet/page") is a **self-hosted, single-file CV/resume system** that renders a professional A4 CV from structured Markdown data. The entire application lives in one HTML file (`cv.html`) that can be opened directly in a browser -- no server, no build step, no dependencies to install.
+**Blatt** (German for "sheet/page") is a **self-hosted, no-install CV/resume system** that renders a professional A4 CV from structured Markdown data. The application is `cv.html` plus the `app/` folder next to it (JavaScript, CSS, the embedded font and the PDF library). Opening `cv.html` straight from disk runs it -- no server, no build step, no dependencies to install.
 
 ## Target Audience
 
@@ -11,10 +11,15 @@
 ## Project Structure
 
 ```
-cv.html              ← The product: open this in a browser (HTML + CSS + JS)
+cv.html              ← The product: open this in a browser (markup + embedded sample CV and template)
+app/                 ← The rest of the product -- must stay next to cv.html
+  css/               ← fonts.css (embedded Open Sans), cv.css (the printed A4 page), app.css (the app around it)
+  js/                ← The app's code, one file per concern (see "JS files"), loaded in order by cv.html
+  vendor/            ← html2pdf.bundle.min.js (lazy-loaded for the Image PDF)
 AGENTS.md            ← This file (project context for AI assistants)
 README.md            ← Public documentation
 LICENSE              ← MIT
+.assetsignore        ← What the Cloudflare self-hosting uploads (cv.html + app/ only)
 docs/                ← Marketing site (GitHub Pages) + sample CV PDF
 src/
   cv-data.md         ← Source CV content in structured Markdown
@@ -23,40 +28,53 @@ src/
     photo.jpeg       ← Profile photo
     Google_Shape_*.jpeg ← Decorative/logo assets
   server/            ← Optional self-hosting server (see "Server mode")
-    core.mjs         ← Platform-neutral server: Google sign-in, sessions, data API
+    core.mjs         ← Platform-neutral server: Google sign-in, sessions, data API, app files
     node/            ← Node adapter (file storage) + Dockerfile
-    cloudflare/      ← Workers adapter (D1 storage) + wrangler.toml
+    cloudflare/      ← Workers adapter (D1 storage, static assets) + wrangler.toml
     test/            ← node --test src/server/test/server.test.mjs
     README.md        ← Self-hosting guide (end-user facing)
 ```
 
-**Root rule:** Keep the root lean — the product (`cv.html`), the standard OSS files (`README.md`, `LICENSE`, `AGENTS.md`), and the `docs/` + `src/` folders (plus git/config dotfiles). Everything else belongs inside `src/` or `docs/`.
+**Root rule:** Keep the root lean — the product (`cv.html` + `app/`), the standard OSS files (`README.md`, `LICENSE`, `AGENTS.md`), and the `docs/` + `src/` folders (plus git/config dotfiles). Everything else belongs inside `src/` or `docs/`.
 
 ## Architecture
 
-### Single-file design
+### One page, one folder, no build
 
-`cv.html` contains everything:
-- **CSS** (~1400 lines): A4 page layout, sidebar/main columns, format panel, editor UI, print styles
-- **HTML** (~300 lines): Page structure, format panel, editor view, modals (download, presets, confirm)
-- **JavaScript** (~1300 lines): Markdown parser, renderers, editor, format controls, preset system, PDF export
-- **Embedded data**: The CV content and template are embedded as `<script type="text/plain">` blocks
+`cv.html` holds the page markup (format panel, tabs, editor, modals) and the sample CV and blank template as `<script type="text/plain">` blocks. It links three stylesheets and ~30 plain scripts from `app/`. There is no build step: the files in the repo are the files users run.
 
-### JS modules (all in one `<script>`, organized by concern)
+- **Plain `<script src>`, never ES modules.** Browsers refuse `type="module"` (and `fetch()`) on pages opened from disk, but load classic scripts and stylesheets from a folder next to the page. All scripts share one global scope, exactly like the single `<script>` they were split from.
+- **Order matters.** cv.html loads the scripts in the order listed in its `<script src>` block; top-level code may only use what an earlier file defined. Event handlers registered at load (several `keydown` listeners) run in that order too. `boot.js` is last and starts the app.
+- **Missing folder.** If `app/` is not next to cv.html (opened from inside a zip, or copied alone), the `.missing-app` notice in cv.html covers the page; `app/css/cv.css` hides it.
+- **The print window** (Text PDF) gets the same stylesheets as links with absolute URLs and prints once they have loaded.
 
-| Module | Responsibility | Key globals |
+### JS files (`app/js/`, in load order)
+
+| File | Responsibility | Key globals |
 |---|---|---|
-| Parser | `parseMD()` -- structured MD to data object | -- |
-| Renderer | `renderCV()`, `renderHeader()`, `renderSidebarSection()`, `renderMainSection()` | `currentMD`, `currentName` |
-| Editor | `buildEditor()`, `renderEditor()`, `editorToMD()` + all editor helpers | `editorData`, `editorDirty` |
-| Format | `FORMAT_SCHEMA`, `applyFormat()`, `buildDrawerUI()`, format change handlers | `currentFormat` |
-| Photo | One stored photo: crop stage, B&W, `renderPhoto()` | `photo`, `photoImg` |
-| ATS | PDF properties per CV version, `cvMeta()`, language detection, checks, job ad match, reading-order preview | `atsReading` |
-| Presets | Format presets + content presets (localStorage CRUD) | -- |
-| PDF | `confirmDownload()` via html2pdf.js | -- |
-| UI | Tab switching, fit-to-screen, page nav, modals, keyboard shortcuts | `fitted`, `showingTemplate`, `currentPage` |
-| Auto-save | Debounced save to localStorage (1.5s) | `autoSaveTimer` |
-| Server sync | Mirrors all `cv-*` localStorage keys to a Blatt server, only when one answers `api/data` | `state.sync` |
+| `state.js` | The `state` object: all mutable app state | `state` |
+| `confirm.js`, `toast.js`, `save-indicator.js`, `link-modal.js` | Confirm dialog, toasts, dirty/clean indicator, link modal | -- |
+| `autosave.js` | Debounced save to localStorage (1.5s) | `state.autoSaveTimer` |
+| `format-feedback.js` | Pulse and hover highlight when format controls change | -- |
+| `shortcuts.js` | Ctrl+S, Ctrl+P | -- |
+| `helpers.js` | `esc()`, inline Markdown, links | -- |
+| `parser.js` | `parseMD()` -- structured MD to data object | -- |
+| `render.js` | `renderCV()`, `renderHeader()`, `renderSidebarSection()`, `renderMainSection()` | -- |
+| `tabs.js` | Tab switching, format panel toggle | -- |
+| `editor.js`, `editor-drag.js`, `editor-to-md.js` | Form editor, drag & drop reordering, `editorToMD()` | `state.editorData` |
+| `content-presets.js` | CV versions (localStorage CRUD) | -- |
+| `word.js` | Word template + import, Word CV export (`docxPackage()`) | -- |
+| `text-export.js` | Plain-text CV | -- |
+| `ats.js` | PDF properties per CV version, `cvMeta()`, language detection | -- |
+| `pdf-text-layer.js` | `addTextLayer()`: invisible text over the Image PDF | -- |
+| `ats-checks.js`, `ats-reading.js`, `ats-job.js` | ATS tab: checks, reading-order preview, job ad match | -- |
+| `download.js` | Download modal, Text PDF (`printCV()`), Image PDF (`confirmDownload()`, loads `app/vendor/html2pdf`) | -- |
+| `library.js` | Configuration tab: CV versions and designs | -- |
+| `view.js` | Fit to screen, page navigation, template toggle | -- |
+| `photo.js` | One stored photo: crop stage, B&W, `renderPhoto()` | -- |
+| `format.js`, `format-presets.js` | `FORMAT_SCHEMA`, `applyFormat()`, format panel; design presets | -- |
+| `sync.js` | Mirrors all `cv-*` localStorage keys to a Blatt server, only when one answers `api/data` | `state.sync` |
+| `boot.js` | Storage migrations, then the start-up sequence | -- |
 
 ### How it works
 
@@ -65,7 +83,7 @@ src/
 3. **Five tabs**: Preview (live A4 page), Editor (form-based editing), Photo, ATS, Configuration
 4. **Format panel** (left sidebar): Real-time CSS variable controls for colors, fonts, spacing, layout
 5. **Preset system**: Save/load/import/export both format presets and content presets (localStorage)
-6. **PDF export**: Image PDF via an inline copy of html2pdf.js, plus an ATS-friendly export via the browser print dialog
+6. **PDF export**: Image PDF via html2pdf.js (`app/vendor/`), plus an ATS-friendly export via the browser print dialog
 
 ## Markdown Format
 
@@ -182,19 +200,26 @@ links whose visible text hides the address.
 
 ## Server mode (optional self-hosting)
 
-The same `cv.html` can be served by the server in `src/server/`: one person, behind a
-Google sign-in, with their data synced across devices. Served as a file or from plain
-static hosting, nothing changes -- the sync code stays inert.
+The same `cv.html` and `app/` folder can be served by the server in `src/server/`: one
+person, behind a Google sign-in, with their data synced across devices. Opened as a file
+or from plain static hosting, nothing changes -- the sync code stays inert.
 
 **Server (`src/server/core.mjs`):** zero dependencies, Web-standard APIs only (Request/
 Response, fetch, WebCrypto), so it runs on Cloudflare Workers, Node 20+, Deno, Bun.
 Adapters supply only storage (`get()` / compare-and-swap `put(baseRev, rec)`) and the
-`cv.html` text. Sign-in is Google OAuth (authorization code + PKCE) for exactly one
-`ALLOWED_EMAIL`; the session is an HMAC-signed HttpOnly cookie. Everything -- the app page
-included -- requires the session. `PUT api/data` additionally requires the
-`X-Blatt-Sync: 1` header (CSRF). Run the tests after any change to it.
+app's files (`getAppFile(name)`, name being `cv.html` or a path under `app/`; the core
+only passes names matching `APP_FILE`, so no other file of the repo can be asked for).
+Node reads them from `APP_DIR` (default: the repo root). On Cloudflare they are Workers
+static assets (`[assets]` in wrangler.toml; `/.assetsignore` limits the upload to
+`cv.html` and `app/`) with `run_worker_first`, so they too sit behind the sign-in.
+Sign-in is Google OAuth (authorization code + PKCE) for exactly one `ALLOWED_EMAIL`; the
+session is an HMAC-signed HttpOnly cookie. Everything -- the app page and its files
+included -- requires the session (a signed-out request for an app file gets 401, not a
+redirect). Everything is sent `Cache-Control: no-store`, so a new deploy never mixes old and
+new files. `PUT api/data` additionally requires the `X-Blatt-Sync: 1` header (CSRF). Run
+the tests after any change to it.
 
-**Client (SERVER SYNC section of `cv.html`):** localStorage stays the working copy. The
+**Client (`app/js/sync.js`):** localStorage stays the working copy. The
 synced unit is a snapshot of every localStorage key starting with `cv-`, so **new
 persistent state must use a `cv-` key to sync, and UI-only state must not**. The
 `blatt-sync` key holds `{ rev, hash }` of the last state agreed with the server.
@@ -219,32 +244,29 @@ All visual formatting is controlled via CSS custom properties on `:root`:
 
 These are not bugs -- the app works well -- but they'll need attention as features grow:
 
-1. **Single-file monolith (~7800 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
-2. **Global state**: ~10 global variables manage app state. Plan: consolidate into a single `state` object.
-3. **Full editor re-render on every change**: `renderEditor()` rebuilds entire DOM via `innerHTML`, losing cursor position. Plan: targeted DOM updates.
-4. **HTML string concatenation**: Both renderer and editor build HTML via `html +=`. Works but fragile at scale.
-5. **No tests**: Parser and renderer have no test coverage (the optional server in `src/server/` does).
+1. **Global state**: ~10 global variables manage app state. Plan: consolidate into a single `state` object.
+2. **Full editor re-render on every change**: `renderEditor()` rebuilds entire DOM via `innerHTML`, losing cursor position. Plan: targeted DOM updates.
+3. **HTML string concatenation**: Both renderer and editor build HTML via `html +=`. Works but fragile at scale.
+4. **No tests**: Parser and renderer have no test coverage (the optional server in `src/server/` does).
 
 ## Roadmap & Goals
 
 ### Current: Self-hosted HTML (v1)
-- User downloads a zip, opens `cv.html` in a browser
+- User downloads a zip, unzips it, opens `cv.html` in a browser
 - Zero setup, zero dependencies, works offline
 - This is the primary distribution model and must always be supported
 
-### Near-term: Build system
-- Split `cv.html` into `src/css/`, `src/js/`, `src/html/` modules
-- Simple build script (shell or Node) that produces the single distributable `cv.html`
-- Enables proper development workflow without breaking the zip distribution model
+### Done: Split into files (v1.1)
+- The former single 7,800-line `cv.html` is now `cv.html` + `app/` (plain scripts and stylesheets), with no build step
 
 ### Medium-term: Desktop app via Tauri
-- Wrap `cv.html` in a Tauri shell for native desktop distribution (macOS, Windows, Linux)
+- Wrap `cv.html` + `app/` in a Tauri shell for native desktop distribution (macOS, Windows, Linux)
 - Tauri chosen over Electron (much smaller binary ~5MB vs ~150MB) and Flutter (would require full rewrite)
 - The app is already a web app, Tauri just provides a native window + system APIs
 - Not intended for mobile -- desktop only
 
 ### Done: Self-hosting (single user)
-- `src/server/`: the same `cv.html` behind a Google sign-in on Cloudflare Workers, Docker or Node, synced across devices (see "Server mode")
+- `src/server/`: the same `cv.html` + `app/` behind a Google sign-in on Cloudflare Workers, Docker or Node, synced across devices (see "Server mode")
 
 ### Distant future: Hosted web app
 - A multi-user hosted service (per-user storage, sign-up) built on the same data API
@@ -263,10 +285,21 @@ The sample CV content ships with a fictional profile. The UI labels in the HTML 
 
 ## Development Notes
 
-- No build tools, bundlers, or package managers (yet -- see roadmap)
-- No runtime network access: the Open Sans font and html2pdf.js are embedded inline in `cv.html`
+- No build tools, bundlers, or package managers: edit the files in `app/`, reload `cv.html`
+- A new script goes into `app/js/` and gets a `<script src>` line in cv.html, after every file it uses at load time
+- No runtime network access: the Open Sans font (data URLs in `app/css/fonts.css`) and html2pdf.js (`app/vendor/`) ship with the app
 - The embedded Open Sans must stay **static** instances (one file per weight/style), never the Google Fonts variable font: Chrome's print-to-PDF embeds variable fonts as Type 3, which ATS parsers and upload virus scanners handle badly. Check with `pdffonts` -- the text PDF should list `CID TrueType`, not `Type 3`
 - All state is in localStorage -- no backend required (the optional server in `src/server/` only mirrors it)
 - The server has no package.json and no npm dependencies; only Cloudflare deployers use `npx wrangler`
 - Target: all modern browsers (Chrome, Firefox, Safari, Edge)
 - The `.claude/settings.local.json` allows bash commands for: `brew`, `python3`, `pip3`, `pdftotext`
+
+## Releasing
+
+Users download `Blatt.zip` from the latest GitHub release (README and site link to
+`releases/latest/download/Blatt.zip`, so the asset name must stay the same). It holds a
+`Blatt/` folder with `cv.html`, `app/` and `LICENSE`, built from the tag:
+
+```
+git archive --format=zip --prefix=Blatt/ -o Blatt.zip vX.Y.Z cv.html app LICENSE
+```

@@ -1,11 +1,11 @@
 # Self-hosting Blatt (optional)
 
-Blatt works perfectly well as a file you double-click. Host it on your own server instead when you want:
+Blatt works perfectly well as a folder on your computer: double-click `cv.html`. Host it on your own server instead when you want:
 
 - **your CV on every device**: edit on the laptop, carry on from the phone or another computer;
 - **a private address** behind a **Google sign-in** that only you can pass.
 
-It's the same `cv.html`. When a Blatt server serves the file, it notices and saves to that server as well as to the browser. Opened as a file, it behaves exactly as before.
+It's the same `cv.html` and `app` folder. When a Blatt server serves them, the app notices and saves to that server as well as to the browser. Opened from your computer, it behaves exactly as before.
 
 Each server is for **one person** (one Google account). Pick a platform:
 
@@ -143,7 +143,7 @@ The container runs as the unprivileged `node` user (uid 1000). A named volume, a
 | `PUBLIC_URL` | Node: yes · Cloudflare: no | The address people type, e.g. `https://cv.example.com` (a sub-path like `https://example.com/blatt` works too). The Node server refuses to start without it, unless it only listens on `127.0.0.1` |
 | `PORT`, `HOST` | no | Node only: where to listen (default `127.0.0.1:8080`; the Docker image uses `0.0.0.0:8080`) |
 | `DATA_DIR` | no | Node only: folder for `blatt-data.json` |
-| `APP_HTML` | no | Node only: path to `cv.html` (default: the one in this repository) |
+| `APP_DIR` | no | Node only: the folder holding `cv.html` and `app/` (default: this repository) |
 
 If a required setting is missing, the server shows a page listing which ones.
 
@@ -174,14 +174,14 @@ If a required setting is missing, the server shows a page listing which ones.
 
 ```
 src/server/
-  core.mjs               ← the whole server: sign-in, sessions, data API, serves cv.html
+  core.mjs               ← the whole server: sign-in, sessions, data API, serves cv.html + app/
   node/server.mjs        ← Node adapter: file storage + http server
   node/Dockerfile
-  cloudflare/worker.mjs  ← Workers adapter: D1 storage, cv.html bundled as text
+  cloudflare/worker.mjs  ← Workers adapter: D1 storage, cv.html + app/ as static assets
   cloudflare/wrangler.toml
   test/server.test.mjs   ← node --test src/server/test/server.test.mjs
 ```
 
-`core.mjs` uses only Web-standard APIs (`Request`/`Response`, `fetch`, WebCrypto). Porting to another platform (Deno, Bun, Vercel, Netlify…) only takes a storage object with `get()` and `put(baseRev, record)`. See the contract at the top of `core.mjs`.
+`core.mjs` uses only Web-standard APIs (`Request`/`Response`, `fetch`, WebCrypto). Porting to another platform (Deno, Bun, Vercel, Netlify…) only takes a storage object with `get()` and `put(baseRev, record)`, and a function that returns the app's files by name. See the contract at the top of `core.mjs`.
 
 The data API is one JSON document with a revision number: `GET api/data` returns `{ rev, updatedAt, data }`, and `PUT api/data` takes `{ baseRev, data }`. It answers `409` if someone else saved first. The browser side lives in the *SERVER SYNC* section of `cv.html`.

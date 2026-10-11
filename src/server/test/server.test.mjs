@@ -46,9 +46,11 @@ function fakeGoogle(claims = {}, opts = {}) {
   return { fetch, calls };
 }
 
+const APP = { 'cv.html': '<html>BLATT APP</html>', 'app/js/boot.js': 'boot();', 'app/css/cv.css': '.page{}' };
+
 function setup({ env = ENV, claims, google, now } = {}) {
   const g = google || fakeGoogle(claims);
-  const handle = createHandler({ env, storage: memoryStorage(), getAppHtml: () => '<html>BLATT APP</html>', fetch: g.fetch, now, maxBodyBytes: 1000 });
+  const handle = createHandler({ env, storage: memoryStorage(), getAppFile: (name) => APP[name] ?? null, fetch: g.fetch, now, maxBodyBytes: 1000 });
   const call = (p, init = {}) => handle(new Request(new URL(p, env.PUBLIC_URL ? env.PUBLIC_URL + '/' : ORIGIN), init));
   return { handle, call, google: g };
 }
@@ -255,9 +257,11 @@ test('file storage: compare-and-swap survives concurrent writers', async () => {
 
 test('node server: end to end over real HTTP', async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'blatt-'));
-  const html = path.join(dir, 'cv.html');
-  await fs.writeFile(html, '<html>REAL APP</html>');
-  const server = createNodeServer({ env: ENV, appHtmlPath: html, dataDir: path.join(dir, 'data'), fetch: fakeGoogle().fetch });
+  await fs.writeFile(path.join(dir, 'cv.html'), '<html>REAL APP</html>');
+  await fs.mkdir(path.join(dir, 'app', 'js'), { recursive: true });
+  await fs.writeFile(path.join(dir, 'app', 'js', 'boot.js'), 'boot();');
+  await fs.writeFile(path.join(dir, 'secret.js'), 'not served');
+  const server = createNodeServer({ env: ENV, appDir: dir, dataDir: path.join(dir, 'data'), fetch: fakeGoogle().fetch });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const origin = 'http://127.0.0.1:' + server.address().port;
   try {
@@ -267,6 +271,12 @@ test('node server: end to end over real HTTP', async () => {
     const cb = await fetch(origin + '/auth/callback?code=abc&state=' + state, { redirect: 'manual', headers: { Cookie: loginCookie } });
     const session = cb.headers.getSetCookie().find((c) => c.startsWith('blatt_session=')).split(';')[0];
     assert.equal(await (await fetch(origin + '/', { headers: { Cookie: session } })).text(), '<html>REAL APP</html>');
+    const js = await fetch(origin + '/app/js/boot.js', { headers: { Cookie: session } });
+    assert.equal(js.headers.get('Content-Type'), 'text/javascript; charset=utf-8');
+    assert.equal(await js.text(), 'boot();');
+    assert.equal((await fetch(origin + '/app/js/none.js', { headers: { Cookie: session } })).status, 404);
+    assert.equal((await fetch(origin + '/app/%2e%2e/secret.js', { headers: { Cookie: session } })).status, 404);
+    assert.equal((await fetch(origin + '/secret.js', { headers: { Cookie: session } })).status, 404);
     const put = await fetch(origin + '/api/data', { method: 'PUT', headers: { Cookie: session, 'X-Blatt-Sync': '1', 'Content-Type': 'application/json' },
       body: JSON.stringify({ baseRev: 0, data: { keys: { 'cv-x': 'y' } } }) });
     assert.equal(put.status, 200);
@@ -304,7 +314,7 @@ test('the login cookie expires after 10 minutes', async () => {
 });
 
 test('stored data with quotes, backslashes and non-ASCII round-trips exactly', async () => {
-  const handle = createHandler({ env: ENV, storage: memoryStorage(), getAppHtml: () => '', fetch: fakeGoogle().fetch });
+  const handle = createHandler({ env: ENV, storage: memoryStorage(), getAppFile: () => '', fetch: fakeGoogle().fetch });
   const ctx = { call: (p, init = {}) => handle(new Request(new URL(p, ORIGIN), init)), google: { calls: [] } };
   const { cookie } = await signIn(ctx);
   const data = { format: 'blatt-sync', version: 1, keys: { 'cv-x': 'He said "hi" \\ back\\slash, ünïcödé 😀 </script>\n\t' } };
@@ -314,6 +324,38 @@ test('stored data with quotes, backslashes and non-ASCII round-trips exactly', a
   assert.deepEqual(got.data, data);
   /* the browser compares JSON.stringify(server.data) with its own snapshot string */
   assert.equal(JSON.stringify(got.data), JSON.stringify(data));
+});
+
+test('the app folder is served after sign-in only, with its content types', async () => {
+  const ctx = setup();
+  const out = await ctx.call('/app/js/boot.js');
+  assert.equal(out.status, 401);
+  assert.equal(await out.text(), 'Signed out');
+  const { cookie } = await signIn(ctx);
+  const js = await ctx.call('/app/js/boot.js', { headers: { Cookie: cookie } });
+  assert.equal(js.status, 200);
+  assert.equal(js.headers.get('Content-Type'), 'text/javascript; charset=utf-8');
+  assert.equal(js.headers.get('Cache-Control'), 'no-store');
+  assert.equal(await js.text(), 'boot();');
+  const css = await ctx.call('/app/css/cv.css', { headers: { Cookie: cookie } });
+  assert.equal(css.headers.get('Content-Type'), 'text/css; charset=utf-8');
+  assert.equal((await ctx.call('/app/js/missing.js', { headers: { Cookie: cookie } })).status, 404);
+  assert.equal((await ctx.call('/app/js/boot.js', { method: 'PUT', headers: { Cookie: cookie } })).status, 405);
+});
+
+test('only plain app/ file names reach the adapter', async () => {
+  const asked = [];
+  const handle = createHandler({ env: ENV, storage: memoryStorage(), getAppFile: (name) => { asked.push(name); return 'x'; }, fetch: fakeGoogle().fetch });
+  const ctx = { call: (p, init = {}) => handle(new Request(new URL(p, ORIGIN), init)), google: { calls: [] } };
+  const { cookie } = await signIn(ctx);
+  for (const p of ['/app/.env.js', '/app/js/.hidden.css', '/app/js/x.txt', '/app/js/x.mjs', '/app/', '/app', '/src/server/core.mjs',
+    '/README.md', '/app/js//x.js', '/app/js/x%2fy.js', '/app/%2e%2e/%2e%2e/etc.js']) {
+    const res = await ctx.call(p, { headers: { Cookie: cookie } });
+    assert.ok(res.status === 404 || res.status === 302, p + ' -> ' + res.status);
+  }
+  assert.deepEqual(asked.filter((n) => n !== 'cv.html'), []);
+  await ctx.call('/app/vendor/html2pdf.bundle.min.js', { headers: { Cookie: cookie } });
+  assert.deepEqual(asked.filter((n) => n !== 'cv.html'), ['app/vendor/html2pdf.bundle.min.js']);
 });
 
 test('HEAD on the app answers without a body; unknown methods are refused', async () => {
@@ -380,7 +422,7 @@ test('D1 storage: a failed CREATE TABLE is retried, not cached', async () => {
 
 test('node server: chunked PUT without Content-Length works; bodies on other methods are ignored', async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'blatt-'));
-  const server = createNodeServer({ env: ENV, appHtmlPath: path.join(dir, 'none.html'), dataDir: dir, fetch: fakeGoogle().fetch });
+  const server = createNodeServer({ env: ENV, appDir: path.join(dir, 'none'), dataDir: dir, fetch: fakeGoogle().fetch });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const origin = 'http://127.0.0.1:' + server.address().port;
   try {

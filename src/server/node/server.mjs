@@ -44,13 +44,24 @@ export function fileStorage(dir) {
   };
 }
 
-export function createNodeServer({ env = process.env, appHtmlPath, dataDir, fetch } = {}) {
-  const htmlPath = appHtmlPath || env.APP_HTML || path.resolve(here, '../../../cv.html');
-  let html = null;
+/* cv.html and its app/ folder, read from the folder that holds them (the core only asks for safe names) */
+export function appFiles(dir) {
+  const root = path.resolve(dir);
+  return async (name) => {
+    const file = path.resolve(root, name);
+    if (!file.startsWith(root + path.sep)) return null;
+    try { return await fs.readFile(file); } catch (err) {
+      if (err.code === 'ENOENT' || err.code === 'EISDIR') return null;
+      throw err;
+    }
+  };
+}
+
+export function createNodeServer({ env = process.env, appDir, dataDir, fetch } = {}) {
   const handle = createHandler({
     env,
     storage: fileStorage(dataDir || env.DATA_DIR || path.resolve(here, 'data')),
-    getAppHtml: async () => html || (html = await fs.readFile(htmlPath, 'utf8')),
+    getAppFile: appFiles(appDir || env.APP_DIR || path.resolve(here, '../../..')),
     maxBodyBytes: MAX_BODY_BYTES,
     fetch,
   });

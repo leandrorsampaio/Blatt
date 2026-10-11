@@ -1,21 +1,22 @@
 # Blatt server -- Docker image for any host (VPS, Fly, Render, Railway, a home server…)
 #
-# Build from the repository root (it needs cv.html):
+# Build from the repository root (it needs cv.html and the app/ folder):
 #   docker build -f src/server/node/Dockerfile -t blatt .
 # Run (settings: src/server/README.md):
 #   docker run -d -p 8080:8080 -v blatt-data:/data --env-file blatt.env blatt
 
 FROM node:22-alpine
 
-WORKDIR /app
+WORKDIR /blatt
 COPY cv.html ./cv.html
+COPY app ./app
 COPY src/server/core.mjs ./src/server/core.mjs
 COPY src/server/node/server.mjs ./src/server/node/server.mjs
 
 ENV HOST=0.0.0.0 \
     PORT=8080 \
     DATA_DIR=/data \
-    APP_HTML=/app/cv.html
+    APP_DIR=/blatt
 
 RUN mkdir -p /data && chown node:node /data
 VOLUME /data

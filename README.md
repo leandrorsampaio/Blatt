@@ -1,24 +1,24 @@
 <h1 align="center">Blatt</h1>
 
-<p align="center"><em>Your CV. One file. Yours forever.</em></p>
+<p align="center"><em>Your CV. One folder. Yours forever.</em></p>
 
 <p align="center">
   <a href="https://github.com/leandrorsampaio/Blatt/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/leandrorsampaio/Blatt?color=2c3e6b"></a>
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
-  <img alt="Single file" src="https://img.shields.io/badge/build-single%20HTML%20file-success">
+  <img alt="No install" src="https://img.shields.io/badge/install-none-success">
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-success">
   <img alt="Offline" src="https://img.shields.io/badge/works-offline-success">
 </p>
 
-**Blatt** (German for *"sheet of paper"*) is a self-hosted résumé/CV builder that lives in a **single HTML file**. One sheet, one file — open it in any browser, fill in your details, and export a clean A4 PDF. No sign-up, no server, no build step, no tracking. Your data never leaves your computer.
+**Blatt** (German for *"sheet of paper"*) is a self-hosted résumé/CV builder that runs straight from a **folder on your computer**. Unzip it, open `cv.html` in any browser, fill in your details, and export a clean A4 PDF. No installation, no sign-up, no server, no tracking. Your data never leaves your computer.
 
-> 🔗 **[Website](https://leandrorsampaio.github.io/Blatt/)** · **[Download cv.html](https://github.com/leandrorsampaio/Blatt/releases/latest/download/cv.html)** · **[Releases](https://github.com/leandrorsampaio/Blatt/releases/latest)** · **[Sample CV (PDF)](https://leandrorsampaio.github.io/Blatt/CV_DEMO.pdf)**
+> 🔗 **[Website](https://leandrorsampaio.github.io/Blatt/)** · **[Download Blatt.zip](https://github.com/leandrorsampaio/Blatt/releases/latest/download/Blatt.zip)** · **[Releases](https://github.com/leandrorsampaio/Blatt/releases/latest)** · **[Sample CV (PDF)](https://leandrorsampaio.github.io/Blatt/CV_DEMO.pdf)**
 
 ---
 
 ## Why Blatt?
 
-- 🗂️ **It's just one file.** The entire app is `cv.html`. Email it to yourself, drop it on a USB stick, back it up — it works anywhere, forever.
+- 🗂️ **It's just one folder.** Unzip it, open `cv.html`. Put the folder on a USB stick or in your cloud drive, back it up — it works anywhere, forever.
 - 🔌 **100% offline.** Runs entirely in your browser. After download you never need an internet connection.
 - 🔒 **You own your data.** No account, no cloud, no analytics. Everything is stored locally in your browser (`localStorage`).
 - 🖱️ **No setup.** Download, double-click, done. Built for people who aren't developers.
@@ -31,8 +31,8 @@
 
 ## Quick start
 
-1. **[Download `cv.html`](https://github.com/leandrorsampaio/Blatt/releases/latest/download/cv.html)** (one self-contained file).
-2. Double-click **`cv.html`** to open it in your browser.
+1. **[Download `Blatt.zip`](https://github.com/leandrorsampaio/Blatt/releases/latest/download/Blatt.zip)** and unzip it (on Windows: right-click → *Extract All*).
+2. In the `Blatt` folder, double-click **`cv.html`** to open it in your browser. Keep the `app` folder next to it: that's the rest of the app.
 3. Click the **Editor** tab, replace the sample content with yours.
 4. Optionally add a photo in the **Photo** tab.
 5. Adjust the look in the **Format** panel on the left.
@@ -56,7 +56,7 @@ That's it. Your work auto-saves to your browser as you type.
 - **Fit-to-screen** and **page navigation** for comfortable editing.
 - **Keyboard shortcuts** — `Ctrl`/`Cmd`+`S` to save, `Ctrl`/`Cmd`+`P` to export.
 - **Print-optimized** — clean output with all UI hidden.
-- **Optional self-hosting** — run the same `cv.html` on your own server behind a Google sign-in, and your CV follows you across devices.
+- **Optional self-hosting** — run the same app on your own server behind a Google sign-in, and your CV follows you across devices.
 
 ---
 
@@ -64,7 +64,7 @@ That's it. Your work auto-saves to your browser as you type.
 
 Want your CV on every device instead of in one browser? Host Blatt on your own server: **Cloudflare Workers** (free tier), **Docker**, or any machine with **Node.js**. You sign in with Google and only your account gets in. Edits save to your server automatically, and if two devices change it at the same time, Blatt asks which version to keep.
 
-It's the same `cv.html`, with no fork and no build step. Opened as a file, it still works fully offline.
+It's the same `cv.html` and `app` folder, with no fork and no build step. Opened from your computer, it still works fully offline.
 
 **→ [Self-hosting guide](src/server/README.md)**
 
@@ -104,23 +104,23 @@ Detail: Led the redesign of the core product.
 
 ## Tech & architecture
 
-The whole application is one `cv.html` file (~7,800 lines: CSS + HTML + vanilla JS), with the CV content and the PDF library embedded inline. The only pieces bundled are a self-contained copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime** (when self-hosted, it talks only to your own server).
-
-Source assets live in `src/`:
+The application is `cv.html` plus an `app/` folder of plain JavaScript and CSS files: vanilla JS, no framework, **no build step** (the files in this repo are the files you run). The only pieces bundled are a copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime** (when self-hosted, it talks only to your own server).
 
 ```
 cv.html              ← The product — open this in a browser
+app/
+  css/               ← The CV page, the app around it, the embedded font
+  js/                ← The app's code, one file per concern
+  vendor/            ← html2pdf.js
 LICENSE              ← MIT
 README.md            ← You are here
 docs/                ← Marketing site (GitHub Pages)
 src/
   cv-data.md         ← Source CV content (Markdown)
   cv-template.md     ← Blank template showing the format
-  assets/            ← Photo, logos, bundled html2pdf.js
+  assets/            ← Photo, logos
   server/            ← Optional self-hosting server (Cloudflare / Node / Docker)
 ```
-
-> **Roadmap:** a small build step that splits `cv.html` into `src/css`, `src/js`, `src/html` modules and re-concatenates them into the single distributable file — without ever breaking the "just open the file" model.
 
 ---
 
@@ -132,7 +132,7 @@ Works in all modern browsers: **Chrome, Firefox, Safari, Edge.** Desktop recomme
 
 ## Contributing
 
-Issues and pull requests are welcome. Because the app is a single file, small focused changes are easiest to review. Please describe what you changed and why.
+Issues and pull requests are welcome. There's nothing to install or build: edit the files in `app/` and reload `cv.html`. Small focused changes are easiest to review. Please describe what you changed and why.
 
 ---
 

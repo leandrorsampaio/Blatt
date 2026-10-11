@@ -1,14 +1,14 @@
 /* ================================================================
  *  Blatt server -- platform-neutral core
  *
- *  Serves cv.html behind a Google sign-in for exactly one allowed
- *  account, and stores that person's Blatt data (one JSON document)
- *  so it follows them across devices.
+ *  Serves cv.html and its app/ folder behind a Google sign-in for
+ *  exactly one allowed account, and stores that person's Blatt data
+ *  (one JSON document) so it follows them across devices.
  *
  *  Only Web-standard APIs (Request/Response, fetch, WebCrypto), no
  *  dependencies: the same code runs on Cloudflare Workers, Node 20+,
  *  Deno and Bun. A platform adapter supplies two things -- storage
- *  and the cv.html text -- see cloudflare/worker.mjs and node/server.mjs.
+ *  and the app's files -- see cloudflare/worker.mjs and node/server.mjs.
  *
  *  Storage contract (one record, compare-and-swap on `rev`):
  *    get()               -> { rev, updatedAt, data } | null   (data = JSON text)
@@ -24,6 +24,17 @@ const LOGIN_COOKIE = 'blatt_login';
 const SESSION_SECONDS = 30 * 24 * 3600;
 const LOGIN_SECONDS = 10 * 60;
 const REQUIRED_ENV = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'ALLOWED_EMAIL', 'SESSION_SECRET'];
+
+/* Files of the app/ folder: path segments may not start with a dot (no "..", no hidden files) */
+const APP_FILE = /^\/app\/(?:[\w-][\w.-]*\/)*[\w-][\w.-]*\.(js|css|svg|png|woff2)$/;
+const APP_TYPES = {
+  html: 'text/html; charset=utf-8',
+  js: 'text/javascript; charset=utf-8',
+  css: 'text/css; charset=utf-8',
+  svg: 'image/svg+xml',
+  png: 'image/png',
+  woff2: 'font/woff2',
+};
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -130,7 +141,8 @@ function page(title, message, link, status = 200, cookies = []) {
  * @param {object}   opts
  * @param {object}   opts.env           GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ALLOWED_EMAIL, SESSION_SECRET, PUBLIC_URL (optional)
  * @param {object}   opts.storage       see the storage contract above
- * @param {Function} opts.getAppHtml    () => cv.html text (sync or async)
+ * @param {Function} opts.getAppFile    (name) => a file's contents (sync or async), null if missing;
+ *                                       name is 'cv.html' or a path in its folder, e.g. 'app/js/boot.js'
  * @param {number}  [opts.maxBodyBytes] largest accepted upload (the stored document)
  * @param {Function}[opts.fetch]        injectable for tests
  * @param {Function}[opts.now]          injectable clock for tests (ms)
@@ -245,12 +257,15 @@ export function createHandler(opts) {
         [cookie(SESSION_COOKIE, '', 0)]);
     }
 
-    /* ── The app ── */
-    if (path === '/' || path === '/index.html' || path === '/cv.html') {
+    /* ── The app: cv.html and the files of its app/ folder ── */
+    const appFile = path === '/' || path === '/index.html' || path === '/cv.html' ? 'cv.html'
+      : APP_FILE.test(path) ? path.slice(1) : null;
+    if (appFile) {
       if (method !== 'GET' && method !== 'HEAD') return respond('Method not allowed', 405, { Allow: 'GET, HEAD' });
-      if (!signedIn) return redirect(at('/auth/login'));
-      const html = await opts.getAppHtml();
-      return respond(method === 'HEAD' ? null : html, 200, { 'Content-Type': 'text/html; charset=utf-8' });
+      if (!signedIn) return appFile === 'cv.html' ? redirect(at('/auth/login')) : respond('Signed out', 401, { 'Content-Type': 'text/plain' });
+      const body = await opts.getAppFile(appFile);
+      if (body == null) return respond('Not found', 404, { 'Content-Type': 'text/plain' });
+      return respond(method === 'HEAD' ? null : body, 200, { 'Content-Type': APP_TYPES[appFile.split('.').pop()] });
     }
 
     /* ── Data API ── */
