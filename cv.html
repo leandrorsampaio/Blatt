@@ -867,6 +867,8 @@
   .ats-job-input { width: 100%; min-height: 130px; padding: 10px 12px; border: 1.5px solid var(--ui-border); border-radius: 8px; resize: vertical; font-family: 'Open Sans', sans-serif; font-size: 8.5pt; line-height: 1.5; color: var(--color-black); }
   .ats-job-input:focus { outline: none; border-color: var(--color-blue); }
   .ats-job-result:empty { display: none; }
+  .ats-job-title { max-width: 420px; margin: 12px 0 0; }
+  .ats-job-result > .ats-checks { margin-top: 16px; }
   .ats-job-score { display: flex; align-items: center; gap: 12px; margin: 16px 0 14px; font-size: 9pt; color: var(--color-black); }
   .ats-job-meter { flex: 0 0 160px; height: 8px; border-radius: 4px; background: var(--ui-hover); overflow: hidden; }
   .ats-job-meter span { display: block; height: 100%; background: var(--color-blue); }
@@ -881,6 +883,7 @@
   .ats-term.missing { border-color: #e6b0aa; background: #fdf2f1; color: #a93226; }
   .ats-term.apart { border-color: #f0c987; background: #fef8ec; color: #9a5b0b; }
   .ats-term.found { border-color: #a9dfbf; background: #f0faf4; color: #1e7e46; }
+  .ats-term.listed { border-color: #b9c9e3; background: #f2f6fc; color: #2c4a7a; }
   .ats-job-ignored { font-size: 8pt; color: var(--ui-grey-light); }
   .ats-job-ignored button { border: none; background: none; padding: 0; font-family: inherit; font-size: inherit; color: var(--color-blue); text-decoration: underline; cursor: pointer; }
   @media (max-width: 720px) { .ats-view { padding: 64px 16px 24px; } .ats-grid { grid-template-columns: 1fr; } .ats-column + .ats-column { border-left: 0; border-top: 1px solid var(--ui-border); } }
@@ -2738,7 +2741,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
         <label class="ats-field"><span>Subject <em>Image PDF only</em></span><input type="text" id="ats-subject" oninput="onAtsField('subject', this.value)"></label>
         <label class="ats-field"><span>Keywords <em>Image PDF only</em></span><input type="text" id="ats-keywords" placeholder="e.g. product management, SQL, A/B testing" oninput="onAtsField('keywords', this.value)"></label>
         <label class="ats-field"><span>File name <em>Image PDF &amp; TXT</em></span><input type="text" id="ats-filename" oninput="onAtsField('filename', this.value)"></label>
-        <p class="ats-note">Upload a <strong>Text PDF</strong> to job portals (Download PDF → Print / Save as Text PDF); the one-column version is the safest. Browsers only let a Text PDF carry the title and the language, and most of them suggest the title as its file name. The <strong>Image PDF</strong> carries every property, but its text is a picture an ATS cannot read. Keywords are rarely used by an ATS: the words in your CV are what count.</p>
+        <p class="ats-note">Upload a <strong>Text PDF</strong> to job portals (Download PDF → Print / Save as Text PDF); the one-column version is the safest, and portals that ask for Word get the <strong>Word document</strong>. Browsers only let a Text PDF carry the title and the language, and most of them suggest the title as its file name. The <strong>Image PDF</strong> carries every property and a hidden copy of the text, but that copy only holds Western European letters. Keywords are rarely used by an ATS: the words in your CV are what count.</p>
       </section>
       <section class="ats-column">
         <h4>Checks</h4>
@@ -2750,6 +2753,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
       <div class="ats-card-heading"><h3>Match a job ad</h3></div>
       <p>Paste the job ad, or at least its tasks and requirements. Blatt picks out its key terms and shows which ones your CV already uses: an ATS ranks applicants by these words, and recruiters search for them. Nothing leaves your browser, and the ad is saved with this CV version.</p>
       <textarea class="ats-job-input" id="ats-job" placeholder="Paste the job ad here…" oninput="onAtsJobInput(this.value)"></textarea>
+      <label class="ats-field ats-job-title"><span>Job title <em>Taken from the ad’s first line – correct it if needed</em></span><input type="text" id="ats-job-title" oninput="onAtsJobTitle(this.value)"></label>
       <div class="ats-job-result" id="ats-job-result"></div>
     </section>
     <section class="ats-card">
@@ -2876,7 +2880,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 <!-- Download modal -->
 <div class="modal-overlay" id="download-modal" onclick="closeDownloadModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3>Download PDF</h3>
+    <h3>Download your CV</h3>
     <p>Choose a filename and export method.</p>
     <input type="text" class="modal-input" id="pdf-filename" value="" placeholder="Filename">
     <div class="modal-export-options">
@@ -2885,7 +2889,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        <span><span class="modal-export-label">Save as Image PDF</span><span class="modal-export-desc">Pixel-perfect layout</span></span>
+        <span><span class="modal-export-label">Save as Image PDF</span><span class="modal-export-desc">Pixel-perfect picture, with hidden text an ATS can read</span></span>
       </button>
       <button class="modal-export-option modal-export-option--ats" onclick="printCV()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
@@ -2901,6 +2905,13 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
           <line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="16" y2="15"/>
         </svg>
         <span><span class="modal-export-label">Print / Save as one-column Text PDF</span><span class="modal-export-desc">Safest for job portals: no columns to mix up</span></span>
+      </button>
+      <button class="modal-export-option" onclick="downloadWordCV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          <polyline points="8 12 9.5 18 12 13.5 14.5 18 16 12"/>
+        </svg>
+        <span><span class="modal-export-label">Save as Word document (.docx)</span><span class="modal-export-desc">One column, for portals that ask for Word</span></span>
       </button>
     </div>
     <div class="modal-actions">
@@ -3535,10 +3546,11 @@ function renderMainSection(section) {
 
     html += '<div class="entry' + (isSub ? ' entry-sub' : '') + '">';
 
-    /* Organisation name (skip for "same" sub-entries) */
+    /* Organisation name (skip for "same" sub-entries) -- a heading, so the Text PDF's
+       structure tags mark where each job or degree starts */
     if (!isSub) {
       const orgParts = entry.title.split('|').map(s => s.trim());
-      html += '<div class="entry-org">' + orgParts.map(p => esc(p)).join('<br>') + '</div>';
+      html += '<h3 class="entry-org">' + orgParts.map(p => esc(p)).join('<br>') + '</h3>';
     }
 
     /* Title + Grade + Date row */
@@ -5146,15 +5158,130 @@ function downloadWordTemplate() {
   ].join('');
   var documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + body + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>';
   var stylesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style><w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Subtitle"><w:name w:val="Subtitle"/><w:rPr><w:i/><w:sz w:val="22"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:b/><w:sz w:val="26"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style></w:styles>';
+  var numberingXml = '<?xml version="1.0" encoding="UTF-8"?><w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>';
+  saveDocx(docxPackage(documentXml, stylesXml, numberingXml), 'Blatt_CV_Template.docx');
+}
+
+/* A minimal .docx: document, styles, bullet numbering and, optionally, document properties */
+function docxPackage(documentXml, stylesXml, numberingXml, coreXml) {
   var files = [
-    { name: '[Content_Types].xml', text: '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/></Types>' },
-    { name: '_rels/.rels', text: '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>' },
-    { name: 'word/document.xml', text: documentXml }, { name: 'word/styles.xml', text: stylesXml },
-    { name: 'word/numbering.xml', text: '<?xml version="1.0" encoding="UTF-8"?><w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>' },
+    { name: '[Content_Types].xml', text: '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>' +
+      (coreXml ? '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>' : '') + '</Types>' },
+    { name: '_rels/.rels', text: '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+      (coreXml ? '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>' : '') + '</Relationships>' },
+    { name: 'word/document.xml', text: documentXml }, { name: 'word/styles.xml', text: stylesXml }, { name: 'word/numbering.xml', text: numberingXml },
     { name: 'word/_rels/document.xml.rels', text: '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/></Relationships>' }
   ];
-  var blob = new Blob([makeStoredZip(files)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Blatt_CV_Template.docx'; a.click(); URL.revokeObjectURL(a.href);
+  if (coreXml) files.push({ name: 'docProps/core.xml', text: coreXml });
+  return new Blob([makeStoredZip(files)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+}
+
+function saveDocx(blob, filename) {
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ── Word export of the CV itself ──
+   Some portals read Word files more reliably than PDFs. One column in the
+   order of the Text PDF (header, sidebar, main column), real heading styles,
+   bullets, and the role and its dates on one line. */
+var WORD_TEXT_WIDTH = 9638; /* A4 width minus 2 cm margins, in twentieths of a point */
+
+function wordRun(text, format) {
+  format = format || {};
+  var props = (format.bold ? '<w:b/>' : '') + (format.italic ? '<w:i/>' : '') + (format.color ? '<w:color w:val="' + format.color + '"/>' : '') +
+    (format.size ? '<w:sz w:val="' + format.size + '"/>' : '');
+  return '<w:r>' + (props ? '<w:rPr>' + props + '</w:rPr>' : '') + '<w:t xml:space="preserve">' + xmlEscape(text) + '</w:t></w:r>';
+}
+
+/* Inline Markdown -> runs: **bold**, *italic*, and links as their visible text (plus the address if the text hides it) */
+function wordRuns(md, format) {
+  format = format || {};
+  var runs = [];
+  var push = function(text) {
+    text.split(/(\*\*.+?\*\*|\*.+?\*)/).forEach(function(part) {
+      if (!part) return;
+      if (/^\*\*.+\*\*$/.test(part)) runs.push(wordRun(part.slice(2, -2), { bold: true, italic: format.italic }));
+      else if (/^\*.+\*$/.test(part)) runs.push(wordRun(part.slice(1, -1), { bold: format.bold, italic: true }));
+      else runs.push(wordRun(part, format));
+    });
+    return '';
+  };
+  replaceMdLinks(String(md || ''), function(text, url) {
+    var address = linkAddress(url);
+    return push(address && !text.toLowerCase().includes(address.split(/[/?#]/)[0].toLowerCase()) ? text + ' (' + address + ')' : text);
+  }, push);
+  return runs.join('');
+}
+
+function wordPara(runs, opts) {
+  opts = opts || {};
+  var props = (opts.style ? '<w:pStyle w:val="' + opts.style + '"/>' : '') + (opts.keepNext ? '<w:keepNext/>' : '') +
+    (opts.bullet ? '<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>' : '') +
+    (opts.tab ? '<w:tabs><w:tab w:val="right" w:pos="' + opts.tab + '"/></w:tabs>' : '') +
+    (opts.before ? '<w:spacing w:before="' + opts.before + '"/>' : '');
+  return '<w:p>' + (props ? '<w:pPr>' + props + '</w:pPr>' : '') + runs + '</w:p>';
+}
+
+/* Headings carry their look directly too: not every Word reader applies paragraph styles */
+function wordCvBody(data, accent) {
+  var body = wordPara(wordRun(plainText(data.header.name || '') + (data.header.degree ? ' (' + plainText(data.header.degree) + ')' : ''), { bold: true, size: 40 }), { style: 'Title' });
+  if (data.header.subtitle) body += wordPara(wordRun(plainText(data.header.subtitle), { italic: true, color: '666666', size: 24 }), { style: 'Subtitle' });
+  var sections = data.sections.filter(function(s) { return s.type === 'sidebar'; }).concat(data.sections.filter(function(s) { return s.type === 'main'; }));
+  sections.forEach(function(section) {
+    body += wordPara(wordRun(plainText(section.title), { bold: true, color: accent, size: 26 }), { style: 'Heading1' });
+    if (section.type === 'sidebar') {
+      if (section.paragraphs.length) body += wordPara(wordRuns(section.paragraphs.join(' ')));
+      section.lines.forEach(function(line) {
+        var icon = /^:(pin|phone|email):\s*/.test(line);
+        body += wordPara(wordRuns(line.replace(/^:(pin|phone|email):\s*/, '')), { bullet: !icon && !isPureMdLink(line) });
+      });
+      return;
+    }
+    section.entries.forEach(function(entry) {
+      var sub = entry.title === SAME_ORG;
+      if (!sub) body += wordPara(wordRun(entry.title.split('|').map(function(p) { return p.trim(); }).join(', '), { color: accent, size: 21 }), { style: 'Heading2' });
+      var title = fieldVal(entry.fields, 'Title'), date = fieldVal(entry.fields, 'Date'), grade = fieldVal(entry.fields, 'Grade');
+      if (title || date) {
+        body += wordPara((title ? wordRun(plainText(title), { bold: true }) : '') + (grade ? wordRun(' (' + plainText(grade) + ')') : '') +
+          (date ? '<w:r><w:tab/></w:r>' + wordRun(plainText(date)) : ''), { tab: WORD_TEXT_WIDTH, keepNext: true, before: sub ? 120 : 0 });
+      }
+      entry.fields.forEach(function(field) {
+        if (['Title', 'Date', 'Grade', 'Detail'].includes(field.key)) return;
+        body += wordPara(wordRun(field.key + ': ', { bold: true }) + wordRuns(field.value.replace(/\n/g, ' ')));
+      });
+      fieldVal(entry.fields, 'Detail').split('\n').map(function(l) { return l.trim(); }).filter(Boolean).forEach(function(line) {
+        body += line.startsWith('- ') ? wordPara(wordRuns(line.slice(2)), { bullet: true }) : wordPara(wordRuns(line));
+      });
+    });
+  });
+  return body;
+}
+
+function downloadWordCV() {
+  closeDownloadModal();
+  if (document.getElementById('editor-view').classList.contains('active')) state.currentMD = editorToMD();
+  var data = parseMD(state.currentMD), meta = cvMeta(data);
+  var accent = getComputedStyle(document.documentElement).getPropertyValue('--color-blue').trim().replace('#', '');
+  if (!/^[0-9a-f]{6}$/i.test(accent)) accent = '333333';
+  var w = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+  var documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ' + w + '><w:body>' + wordCvBody(data, accent) +
+    '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>';
+  var stylesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles ' + w + '>' +
+    '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="20"/><w:lang w:val="' + meta.language + '"/></w:rPr></w:rPrDefault>' +
+    '<w:pPrDefault><w:pPr><w:spacing w:after="40" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>' +
+    '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>' +
+    '<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:spacing w:after="0"/></w:pPr><w:rPr><w:b/><w:sz w:val="40"/></w:rPr></w:style>' +
+    '<w:style w:type="paragraph" w:styleId="Subtitle"><w:name w:val="Subtitle"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:spacing w:after="120"/></w:pPr><w:rPr><w:i/><w:color w:val="666666"/><w:sz w:val="24"/></w:rPr></w:style>' +
+    '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:spacing w:before="240" w:after="80"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:color w:val="' + accent + '"/><w:sz w:val="26"/></w:rPr></w:style>' +
+    '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:spacing w:before="160" w:after="0"/><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:color w:val="' + accent + '"/><w:sz w:val="21"/></w:rPr></w:style>' +
+    '</w:styles>';
+  var numberingXml = '<?xml version="1.0" encoding="UTF-8"?><w:numbering ' + w + '><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="284" w:hanging="284"/></w:pPr></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>';
+  var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+    '<dc:title>' + xmlEscape(meta.title) + '</dc:title>' + (meta.subject ? '<dc:subject>' + xmlEscape(meta.subject) + '</dc:subject>' : '') +
+    (meta.author ? '<dc:creator>' + xmlEscape(meta.author) + '</dc:creator>' : '') + (meta.keywords ? '<cp:keywords>' + xmlEscape(meta.keywords) + '</cp:keywords>' : '') +
+    '<dc:language>' + meta.language + '</dc:language><dcterms:created xsi:type="dcterms:W3CDTF">' + new Date().toISOString().replace(/\.\d+Z$/, 'Z') + '</dcterms:created></cp:coreProperties>';
+  var filename = (document.getElementById('pdf-filename').value.trim() || meta.filename).replace(/\.(pdf|docx)$/i, '') + '.docx';
+  saveDocx(docxPackage(documentXml, stylesXml, numberingXml, coreXml), filename);
 }
 
 async function readDocxPart(buffer, partName) {
@@ -5290,7 +5417,7 @@ function downloadTxt() {
  * ================================================================ */
 const CONTENT_META = 'cv-content-meta'; /* CV version name -> { title, author, subject, keywords, language, filename, jobAd, jobIgnore } */
 const META_FIELDS = ['title', 'author', 'subject', 'keywords', 'language', 'filename'];
-const STORED_FIELDS = META_FIELDS.concat(['jobAd', 'jobIgnore']); /* plus the job ad this version is matched against */
+const STORED_FIELDS = META_FIELDS.concat(['jobAd', 'jobTitle', 'jobIgnore']); /* plus the job ad this version is matched against */
 
 const CV_LANGUAGES = {
   en: 'English', de: 'German', fr: 'French', es: 'Spanish', pt: 'Portuguese', it: 'Italian', nl: 'Dutch',
@@ -5408,6 +5535,72 @@ function applyPdfProperties(pdf) {
   pdf.viewerPreferences({ DisplayDocTitle: true });
 }
 
+/* ── Text layer for the Image PDF ──
+   The Image PDF is a picture of each page, so on its own an ATS finds no text
+   in it. Every run of words is written over its picture in invisible text, the
+   way scanned documents get an OCR layer, in the same order as the Text PDF.
+   jsPDF cannot embed the page's WOFF2 fonts, so the layer uses the PDF's
+   built-in Helvetica, spaced out or squeezed to cover the words underneath. */
+const PX_TO_MM = 25.4 / 96;
+const OPEN_SANS_BASELINE = 1.069 / 1.362; /* ascent / line box height: where the baseline sits in a measured run */
+const CP1252_HIGH = '€\0‚ƒ„…†‡ˆ‰Š‹Œ\0Ž\0\0‘’“”•–—˜™š›œ\0žŸ'; /* Windows-1252 bytes 0x80-0x9F */
+/* Advance widths (1/1000 em) of the built-in Helvetica and Helvetica-Bold for Windows-1252
+   bytes 32-255, as PDF readers use them -- jsPDF's own tables are slightly off */
+const HELVETICA_WIDTHS = {
+  normal: '278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,350,556,0,222,556,333,1000,556,556,333,1000,667,333,1000,0,611,0,0,222,222,333,333,350,556,1000,333,1000,500,333,944,0,500,667,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500'.split(',').map(Number),
+  bold: '278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,350,556,0,278,556,500,1000,556,556,333,1000,667,333,1000,0,611,0,0,278,278,500,500,350,556,1000,333,1000,556,333,944,0,500,667,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556'.split(',').map(Number)
+};
+const WIN_ANSI_SWAP = { 'ł': 'l', 'Ł': 'L', 'đ': 'd', 'Đ': 'D', 'ı': 'i', '−': '-', '‐': '-', '‑': '-', '\u2009': ' ', '\u202f': ' ' };
+
+/* The Windows-1252 byte of a character, or -1 */
+function winAnsiByte(c) {
+  const code = c.charCodeAt(0);
+  if (c.length !== 1) return -1;
+  if ((code >= 32 && code < 127) || (code >= 160 && code <= 255)) return code;
+  const i = code > 255 ? CP1252_HIGH.indexOf(c) : -1;
+  return i >= 0 ? 0x80 + i : -1;
+}
+function isWinAnsi(c) { return winAnsiByte(c) >= 0; }
+
+/* The built-in PDF fonts only hold Windows-1252: other letters lose their accent or drop out */
+function winAnsiText(text) {
+  return Array.from(text.normalize('NFC')).map(function(c) {
+    if (isWinAnsi(c)) return c;
+    const base = c.normalize('NFD').replace(/\p{M}/gu, '');
+    return base !== c && Array.from(base).every(isWinAnsi) ? base : (WIN_ANSI_SWAP[c] || '');
+  }).join('');
+}
+
+function addTextLayer(pdf, pages) {
+  const width = function(text, bold) {
+    let units = 0;
+    for (const c of text) units += HELVETICA_WIDTHS[bold ? 'bold' : 'normal'][winAnsiByte(c) - 32] || 0;
+    return units / 1000 * pdf.getFontSize() / pdf.internal.scaleFactor;
+  };
+  pages.forEach(function(runs, index) {
+    if (index >= pdf.getNumberOfPages()) return;
+    pdf.setPage(index + 1);
+    runs.forEach(function(run) {
+      let text = winAnsiText(run.text);
+      const bullet = text.startsWith('• ');
+      if (bullet) text = text.slice(2);
+      if (!text.trim()) return;
+      pdf.setFont('helvetica', (run.bold ? 'bold' : '') + (run.italic ? 'italic' : '') || 'normal');
+      pdf.setFontSize(run.size * 0.75); /* px -> pt */
+      const x = run.left * PX_TO_MM;
+      const y = (run.top + run.height * OPEN_SANS_BASELINE) * PX_TO_MM;
+      /* Spread the difference between Helvetica and Open Sans over the letters. The spacing
+         follows every letter, the last one too, so the run ends where the words underneath
+         end and the gap to the next run stays a readable space. */
+      const limit = run.size * PX_TO_MM * 0.25;
+      const spare = (run.right - run.left) * PX_TO_MM - width(text, run.bold);
+      const charSpace = Math.max(-limit, Math.min(limit, spare / text.length));
+      if (bullet) pdf.text('•', x - width('• ', run.bold), y, { renderingMode: 'invisible' });
+      pdf.text(text, x, y, { renderingMode: 'invisible', charSpace: charSpace });
+    });
+  });
+}
+
 function buildAtsView() {
   if (state.showingTemplate) toggleTemplate(); else renderCV(state.currentMD);
   const saved = getContentMeta(getActiveContentName());
@@ -5424,6 +5617,7 @@ function buildAtsView() {
     Object.keys(CV_LANGUAGES).map(function(code) { return '<option value="' + code + '">' + esc(CV_LANGUAGES[code]) + '</option>'; }).join('');
   select.value = CV_LANGUAGES[saved.language] ? saved.language : '';
   document.getElementById('ats-job').value = saved.jobAd || '';
+  document.getElementById('ats-job-title').value = saved.jobTitle || '';
   state.atsReading = measureCvText();
   renderAtsChecks();
   renderAtsJob();
@@ -5463,6 +5657,28 @@ function renderAtsChecks() {
   if (phone) add('ok', 'Phone: ' + esc(plainText(phone).replace(/^Phone:\s*/, '')));
   else add('warn', 'No phone number found.');
 
+  /* Location: portals filter by place before anyone reads the CV */
+  const pin = sideLines.find(function(l) { return l.startsWith(':pin:'); });
+  const place = pin ? plainText(pin).replace(/^Address:\s*/, '') : [data.header.subtitle || ''].concat(sideLines).map(plainText).find(function(l) {
+    return /\b\d{4,5}\s+\p{Lu}\p{L}+/u.test(l) || ATS_COUNTRIES.test(l);
+  });
+  if (place) add('ok', 'Location: ' + esc(place));
+  else add('warn', 'No location found. Many portals filter applicants by place before anyone reads the CV: add your city and country (the location icon in Contact). If the job needs a work permit, say whether you have one.');
+
+  /* Links: a parser reads the visible text, not the address behind it */
+  const hiddenLinks = [];
+  cvRawTexts(data).forEach(function(raw) {
+    replaceMdLinks(raw, function(text, url) {
+      const address = linkAddress(url);
+      if (!address) return '';
+      if (!text.toLowerCase().includes(address.split(/[/?#]/)[0].toLowerCase())) hiddenLinks.push({ text: plainText(text), address: address });
+      return '';
+    }, function() { return ''; });
+  });
+  hiddenLinks.slice(0, 3).forEach(function(l) {
+    add('warn', 'The link “' + esc(l.text) + '” shows no address. A parser reads the text, not the link behind it: write “' + esc(l.address) + '” as the link text.');
+  });
+
   const placeholder = text.match(/\[[^\]\n]{2,}\]/) || text.match(/lorem ipsum/i);
   if (placeholder) add('error', 'Template text is still in the CV: “' + esc(placeholder[0]) + '”.');
 
@@ -5477,7 +5693,7 @@ function renderAtsChecks() {
   }
 
   const titles = data.sections.filter(function(s) { return s.type !== 'page'; }).map(function(s) { return s.title; });
-  const isKind = function(title, kind) { return kind.stems.some(function(stem) { return title.toLowerCase().includes(stem); }); };
+  const isKind = isSectionKind;
   const found = [], missing = [];
   ATS_SECTIONS.forEach(function(kind) {
     const title = titles.find(function(t) { return isKind(t, kind); });
@@ -5501,6 +5717,11 @@ function renderAtsChecks() {
   if (undated.length) add('warn', 'No year in the date of: ' + esc(undated.slice(0, 3).join(', ')) + (undated.length > 3 ? ' and ' + (undated.length - 3) + ' more' : '') + '. Write dates like 03/2021 – Present.');
   else if (timeline.length) add('ok', 'Every job and degree has a date with a year.');
 
+  /* The Image PDF's hidden text uses the built-in PDF fonts (Windows-1252) */
+  const unsupported = Array.from(new Set(Array.from(text).filter(function(c) { return c.trim() && winAnsiText(c) !== c; })));
+  if (unsupported.length) add('warn', 'The Image PDF’s hidden text cannot hold ' + unsupported.slice(0, 6).map(function(c) { return '“' + esc(c) + '”'; }).join(' ') +
+    (unsupported.length > 6 ? ' and more' : '') + '. For job portals, send a Text PDF: it keeps every letter.');
+
   const mixed = atsMixedLines();
   if (mixed) add('info', 'Simpler parsers read straight across the page and run your two columns together on ' + mixed + ' line' + (mixed === 1 ? '' : 's') + '. See below, or use the one-column Text PDF for job portals.');
 
@@ -5508,6 +5729,34 @@ function renderAtsChecks() {
   if (pages > 2) add('info', pages + ' pages. Recruiters usually expect one or two.');
 
   document.getElementById('ats-checks').innerHTML = items.join('');
+}
+
+const ATS_COUNTRIES = new RegExp('\\b(' + ['Germany', 'Deutschland', 'Austria', 'Österreich', 'Switzerland', 'Schweiz', 'Suisse', 'Svizzera',
+  'France', 'Spain', 'España', 'Portugal', 'Italy', 'Italia', 'Netherlands', 'Nederland', 'Belgium', 'België', 'Belgique', 'Luxembourg',
+  'Ireland', 'United Kingdom', 'UK', 'England', 'Scotland', 'Poland', 'Polska', 'Czechia', 'Czech Republic', 'Sweden', 'Sverige',
+  'Denmark', 'Danmark', 'Norway', 'Norge', 'Finland', 'Suomi', 'Greece', 'Romania', 'Hungary', 'Turkey', 'Türkiye', 'USA', 'United States',
+  'Canada', 'Mexico', 'México', 'Brazil', 'Brasil', 'Argentina', 'Chile', 'Colombia', 'India', 'Australia', 'New Zealand', 'Singapore',
+  'Japan', 'China', 'South Africa', 'United Arab Emirates', 'UAE', 'Israel', 'Remote'].join('|') + ')\\b');
+
+/* What a link points at, as a person would type it: "linkedin.com/in/x", "me@example.com" */
+function linkAddress(url) {
+  if (!/^(https?:|mailto:)/i.test(url)) return '';
+  return url.replace(/^mailto:/i, '').replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
+}
+
+/* Raw Markdown of every CV text, with its links still in place */
+function cvRawTexts(data) {
+  const parts = [data.header.subtitle];
+  data.sections.forEach(function(s) {
+    if (s.type === 'page') return;
+    parts.push.apply(parts, s.lines.concat(s.paragraphs));
+    s.entries.forEach(function(e) { parts.push(e.title); e.fields.forEach(function(f) { parts.push(f.value); }); });
+  });
+  return parts.filter(Boolean);
+}
+
+function isSectionKind(title, kind) {
+  return kind.stems.some(function(stem) { return title.toLowerCase().includes(stem); });
 }
 
 /* Lay a copy of the rendered pages out off-screen and note where every run
@@ -5537,8 +5786,10 @@ function measurePageText(page) {
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const parent = node.parentElement;
     const column = parent.closest('.sidebar') ? 'side' : parent.closest('.main') ? 'main' : 'page';
-    const heading = !!parent.closest('h1, h2');
+    const heading = !!parent.closest('h1, h2, h3');
     const item = parent.closest('li');
+    const style = getComputedStyle(parent);
+    const font = { size: parseFloat(style.fontSize), bold: parseInt(style.fontWeight, 10) >= 600, italic: style.fontStyle !== 'normal' };
     const words = /\S+/g;
     let run = null, m;
     while ((m = words.exec(node.nodeValue))) {
@@ -5555,7 +5806,7 @@ function measurePageText(page) {
         run.right = box.right;
       } else {
         if (run) runs.push(run);
-        run = { text: word, top: box.top, left: box.left, right: box.right, height: box.height, column: column, heading: heading };
+        run = Object.assign({ text: word, top: box.top, left: box.left, right: box.right, height: box.height, column: column, heading: heading }, font);
       }
     }
     if (run) runs.push(run);
@@ -5756,7 +6007,7 @@ function jobKeyTerms(text, ignored) {
           /* Show the spelling that carries the most capitals the ad meant (Jira, SQL) */
           if (marked > term.marked) {
             term.marked = marked;
-            term.label = words.map(function(w) { return w.special || w.capital || german ? w.raw : w.raw.toLowerCase(); }).join(' ');
+            term.label = words.map(function(w) { return w.special || marked || german ? w.raw : w.raw.toLowerCase(); }).join(' ');
           }
         }
       }
@@ -5780,23 +6031,154 @@ function jobKeyTerms(text, ignored) {
   return chosen.sort(byScore);
 }
 
-/* found: the phrase is in the CV; apart: all its words are, but not together */
-function matchJobTerms(terms, cvText) {
-  const stems = new Set(), sequence = [];
-  jobSegments(cvText).forEach(function(segment) {
-    segment.forEach(function(w) { stems.add(w.stem); sequence.push(w.stem); });
+/* Text as stems, for phrase lookups: "|" marks a break the phrase may not cross */
+function stemIndex(text) {
+  const stems = new Set(), sequence = [], words = [];
+  jobSegments(text).forEach(function(segment) {
+    segment.forEach(function(w, i) { stems.add(w.stem); sequence.push(w.stem); words.push(Object.assign({ prev: segment[i - 1] || null }, w)); });
     sequence.push('|');
   });
-  const joined = ' ' + sequence.join(' ') + ' ';
-  return terms.map(function(t) {
-    const status = joined.includes(' ' + t.key + ' ') ? 'found'
-      : t.n > 1 && t.key.split(' ').every(function(s) { return stems.has(s); }) ? 'apart' : 'missing';
-    return Object.assign({ status: status }, t);
+  return { stems: stems, words: words, joined: ' ' + sequence.join(' ') + ' ' };
+}
+function stemKey(text) { return stemIndex(text).words.map(function(w) { return w.stem; }).join(' '); }
+function hasPhrase(index, key) { return !!key && index.joined.includes(' ' + key + ' '); }
+
+/* The whole CV, and only its job and project entries -- where a skill is shown in use */
+function cvIndex(data) {
+  const entries = [];
+  data.sections.forEach(function(s) {
+    if (s.type !== 'main') return;
+    s.entries.forEach(function(e) {
+      if (e.title !== SAME_ORG) entries.push(e.title);
+      e.fields.forEach(function(f) { entries.push(f.value); });
+    });
   });
+  return { all: stemIndex(cvPlainText(data)), used: stemIndex(entries.map(plainText).join('\n')) };
+}
+
+/* Spoken languages are listed, never "shown in use" */
+const LANGUAGE_NAMES = new Set(Object.keys(CV_LANGUAGES).map(function(k) { return CV_LANGUAGES[k]; })
+  .concat('Deutsch Englisch Französisch Spanisch Portugiesisch Italienisch Niederländisch Polnisch Russisch'.split(' '))
+  .map(function(name) { return stemKey(name); }));
+
+/* found: the phrase is in the CV (inUse: in a job or project entry); apart: its words are, but not together */
+function matchJobTerms(terms, cv) {
+  return terms.map(function(t) {
+    const status = hasPhrase(cv.all, t.key) ? 'found'
+      : t.n > 1 && t.key.split(' ').every(function(s) { return cv.all.stems.has(s); }) ? 'apart' : 'missing';
+    const inUse = status === 'found' && (hasPhrase(cv.used, t.key) || LANGUAGE_NAMES.has(t.key));
+    return Object.assign({ status: status, inUse: inUse }, t);
+  });
+}
+
+/* ── Job title ──
+   Recruiters search by title first, so the ad's title belongs in the subtitle
+   or the latest role when it is true. */
+const JOB_SENIORITY = new Set('senior sr junior jr lead principal staff head chief associate assistant trainee intern werkstudent praktikant leitender leitende'.split(' '));
+
+/* The ad's first line up to its gender marker, "(m/w/d)", or else up to a dash */
+function jobAdTitle(ad) {
+  let line = ad.split(/\r?\n/).map(function(l) { return l.trim(); }).find(Boolean) || '';
+  const marker = line.split(/\(\s*(?:[mwfdx]\s*\/\s*)+[mwfdx]\s*\)|\((?:all genders|alle geschlechter|gn)\)/i)[0].trim();
+  if (marker) line = marker;
+  line = line.replace(/\([^)]*\)/g, ' ').replace(/\b[mwfdx]\s*\/\s*[mwfdx](\s*\/\s*[mwfdx])?\b/gi, ' ').replace(/[*:]in\b/g, '')
+    .split(/\s[–—|-]\s|\s@\s|,/)[0].replace(/\s+/g, ' ').trim();
+  return line.length <= 80 ? line : '';
+}
+
+function latestRole(data) {
+  const section = data.sections.find(function(s) { return s.type === 'main' && isSectionKind(s.title, ATS_SECTIONS[0]); });
+  const entry = section && section.entries.find(function(e) { return fieldVal(e.fields, 'Title'); });
+  return entry ? plainText(fieldVal(entry.fields, 'Title')) : '';
+}
+
+function jobTitleCheck(title, data) {
+  const words = stemIndex(title).words;
+  const key = words.map(function(w) { return w.stem; }).join(' ');
+  const core = words.filter(function(w) { return !JOB_SENIORITY.has(w.fold); }).map(function(w) { return w.stem; }).join(' ');
+  const places = [['subtitle', plainText(data.header.subtitle || '')], ['latest role', latestRole(data)]].filter(function(p) { return p[1]; });
+  const quote = function(t) { return '“' + esc(t) + '”'; };
+  for (const p of places) {
+    if (hasPhrase(stemIndex(p[1]), key)) return { level: 'ok', html: 'Job title ' + quote(title) + ' is in your ' + p[0] + '.' };
+  }
+  for (const p of places) {
+    if (core && core !== key && hasPhrase(stemIndex(p[1]), core)) {
+      return { level: 'warn', html: 'Your ' + p[0] + ' says ' + quote(p[1]) + '; the ad asks for ' + quote(title) + '. Use the ad’s wording where it is true.' };
+    }
+  }
+  return { level: 'warn', html: 'The job title ' + quote(title) + ' is not in your subtitle or latest role. Recruiters search by title first: if it fits, use the same title in your subtitle.' };
+}
+
+/* ── Acronyms ──
+   A search for "SEO" misses a CV that only says "Search Engine Optimization",
+   and the other way round. Known pairs, plus any "Long Form (LF)" the ad or the
+   CV spells out itself. Acronyms nobody searches in full (KPI, SaaS, B2B) are left out. */
+const ACRONYMS = {
+  'AI': 'Artificial Intelligence', 'ML': 'Machine Learning', 'NLP': 'Natural Language Processing', 'LLM': 'Large Language Model',
+  'BI': 'Business Intelligence', 'SEO': 'Search Engine Optimization|Search Engine Optimisation', 'SEM': 'Search Engine Marketing',
+  'CRM': 'Customer Relationship Management', 'ERP': 'Enterprise Resource Planning',
+  'OKR': 'Objectives and Key Results', 'SLA': 'Service Level Agreement', 'UX': 'User Experience',
+  'UI': 'User Interface', 'QA': 'Quality Assurance', 'HR': 'Human Resources', 'R&D': 'Research and Development', 'P&L': 'Profit and Loss',
+  'M&A': 'Mergers and Acquisitions', 'FP&A': 'Financial Planning and Analysis', 'GDPR': 'General Data Protection Regulation',
+  'PMP': 'Project Management Professional', 'MBA': 'Master of Business Administration', 'CPA': 'Certified Public Accountant',
+  'CFA': 'Chartered Financial Analyst', 'IoT': 'Internet of Things', 'CMS': 'Content Management System', 'CX': 'Customer Experience',
+  'GTM': 'Go-to-Market', 'PoC': 'Proof of Concept', 'NPS': 'Net Promoter Score',
+  'ARR': 'Annual Recurring Revenue', 'PLM': 'Product Lifecycle Management',
+  'TDD': 'Test-Driven Development', 'IAM': 'Identity and Access Management', 'SRE': 'Site Reliability Engineering',
+  'KI': 'Künstliche Intelligenz', 'BWL': 'Betriebswirtschaftslehre', 'VWL': 'Volkswirtschaftslehre', 'DSGVO': 'Datenschutz-Grundverordnung'
+};
+const ACRONYM_SMALL_WORDS = new Set('and of for to as a the und der die das de du des'.split(' '));
+
+/* "Search Engine Optimization (SEO)" and "SEO (Search Engine Optimization)" spelled out in a text */
+function spelledOutAcronyms(text) {
+  const pairs = [];
+  const initials = function(long) {
+    return long.split(/[\s-]+/).filter(function(w) { return w && !ACRONYM_SMALL_WORDS.has(w.toLowerCase()); }).map(function(w) { return w[0]; }).join('').toLowerCase();
+  };
+  const letters = function(acronym) { return acronym.replace(/s$/, '').replace(/[^\p{L}]/gu, '').toLowerCase(); };
+  const add = function(long, acronym) {
+    long = long.trim();
+    if (initials(long) === letters(acronym)) pairs.push({ acronym: acronym.replace(/s$/, ''), long: [long] });
+  };
+  for (const m of text.matchAll(/((?:\p{Lu}[\p{L}-]*\s+(?:(?:and|of|for|to|as|a|und|der)\s+)?){1,6})\((\p{Lu}[\p{L}&\/]{1,6})\)/gu)) add(m[1], m[2]);
+  for (const m of text.matchAll(/\b(\p{Lu}[\p{Lu}&\/]{1,6}s?)\s*\(((?:[\p{L}-]+\s*){2,6})\)/gu)) add(m[2], m[1]);
+  return pairs;
+}
+
+function hasAcronym(index, acronym) {
+  const loose = acronym.length > 3 || /\p{Ll}/u.test(acronym); /* "IT" is not "it", but "SaaS" is "SAAS" */
+  return index.words.some(function(w) {
+    /* After a capitalised name it is part of a product: "Power BI", "Azure ML" */
+    if (w.prev && w.prev.capital && /\p{Ll}/u.test(w.prev.raw)) return false;
+    return w.raw === acronym || w.raw === acronym + 's' || (loose && (w.fold === foldWord(acronym) || w.fold === foldWord(acronym) + 's'));
+  });
+}
+
+/* Pairs the ad uses in one form or the other, but the CV only in one */
+function acronymTips(ad, cvText, cv) {
+  const adIndex = stemIndex(ad), seen = new Set(), tips = [];
+  const pairs = Object.keys(ACRONYMS).map(function(a) { return { acronym: a, long: ACRONYMS[a].split('|') }; })
+    .concat(spelledOutAcronyms(ad), spelledOutAcronyms(cvText));
+  pairs.forEach(function(p) {
+    if (seen.has(p.acronym)) return;
+    const longIn = function(index) { return p.long.find(function(l) { return hasPhrase(index, stemKey(l)); }); };
+    if (!hasAcronym(adIndex, p.acronym) && !longIn(adIndex)) return;
+    const cvAcronym = hasAcronym(cv.all, p.acronym), cvLong = longIn(cv.all);
+    if (cvAcronym === !!cvLong) return;
+    seen.add(p.acronym);
+    tips.push({ acronym: p.acronym, long: cvLong || p.long[0], has: cvAcronym ? p.acronym : cvLong });
+  });
+  return tips;
 }
 
 function onAtsJobInput(value) {
   onAtsField('jobAd', value);
+  clearTimeout(state.atsJobTimer);
+  state.atsJobTimer = setTimeout(renderAtsJob, 250);
+}
+
+function onAtsJobTitle(value) {
+  onAtsField('jobTitle', value);
   clearTimeout(state.atsJobTimer);
   state.atsJobTimer = setTimeout(renderAtsJob, 250);
 }
@@ -5820,32 +6202,47 @@ function renderAtsJob() {
   const meta = getContentMeta(getActiveContentName());
   const box = document.getElementById('ats-job-result');
   const ad = (meta.jobAd || '').trim();
+  const titleInput = document.getElementById('ats-job-title');
+  titleInput.placeholder = ad ? jobAdTitle(ad) : '';
   if (!ad) { box.innerHTML = ''; return; }
   const ignored = (meta.jobIgnore || '').split('\n').filter(Boolean);
-  const terms = matchJobTerms(jobKeyTerms(ad, ignored), cvPlainText(parseMD(state.currentMD)));
+  const data = parseMD(state.currentMD), cvText = cvPlainText(data), cv = cvIndex(data);
+  const terms = matchJobTerms(jobKeyTerms(ad, ignored), cv);
+
+  /* Job title and acronym tips, in the style of the checks list */
+  const title = (meta.jobTitle || '').trim() || jobAdTitle(ad);
+  const tips = [];
+  if (title) { const t = jobTitleCheck(title, data); tips.push('<li class="' + t.level + '"><span>' + t.html + '</span></li>'); }
+  acronymTips(ad, cvText, cv).forEach(function(t) {
+    tips.push('<li class="warn"><span>Write “' + esc(t.long) + ' (' + esc(t.acronym) + ')” once: your CV only says “' + esc(t.has) +
+      '”, and a search for the other form misses it.</span></li>');
+  });
+  const tipList = tips.length ? '<ul class="ats-checks">' + tips.join('') + '</ul>' : '';
   const restore = ignored.length ? '<p class="ats-job-ignored">' + ignored.length + ' term' + (ignored.length === 1 ? '' : 's') +
     ' ignored · <button onclick="restoreJobTerms()">Show again</button></p>' : '';
-  if (!terms.length) { box.innerHTML = '<p class="ats-job-ignored">No key terms found yet. Paste more of the ad.</p>' + restore; return; }
+  if (!terms.length) { box.innerHTML = tipList + '<p class="ats-job-ignored">No key terms found yet. Paste more of the ad.</p>' + restore; return; }
 
   const by = function(status) { return terms.filter(function(t) { return t.status === status; }); };
   const found = by('found'), apart = by('apart'), missing = by('missing');
+  const shown = found.filter(function(t) { return t.inUse; }), listed = found.filter(function(t) { return !t.inUse; });
   const percent = Math.round((found.length + apart.length / 2) / terms.length * 100);
   const chips = function(list) {
     return '<div class="ats-terms">' + list.map(function(t) {
-      return '<span class="ats-term ' + t.status + '">' + esc(t.label) + (t.count > 1 ? ' <small>×' + t.count + '</small>' : '') +
+      return '<span class="ats-term ' + (t.status === 'found' && !t.inUse ? 'listed' : t.status) + '">' + esc(t.label) + (t.count > 1 ? ' <small>×' + t.count + '</small>' : '') +
         '<button title="Not relevant – ignore" onclick="ignoreJobTerm(' + JSON.stringify(t.key).replace(/&/g, '&amp;').replace(/"/g, '&quot;') + ')">×</button></span>';
     }).join('') + '</div>';
   };
   const group = function(list, title, hint) {
     return list.length ? '<div class="ats-job-group"><h5>' + title + ' (' + list.length + ')</h5>' + (hint ? '<p>' + hint + '</p>' : '') + chips(list) + '</div>' : '';
   };
-  box.innerHTML =
+  box.innerHTML = tipList +
     '<div class="ats-job-score"><div class="ats-job-meter"><span style="width:' + percent + '%"></span></div>' +
     '<span><strong>' + percent + '% match</strong> · your CV uses ' + found.length + ' of the ' + terms.length + ' key terms' +
     (apart.length ? ', and the words of ' + apart.length + ' more' : '') + '</span></div>' +
     group(missing, 'Not in your CV', 'Add the ones that are true for you, in the words of the ad. Leave out anything you could not back up in an interview.') +
     group(apart, 'Words there, but not together', 'Recruiters often search for the exact phrase.') +
-    group(found, 'Already in your CV', '') + restore;
+    group(listed, 'Only listed, not shown in use', 'They appear in your sidebar or skills, but in no job or project. Mention them where you used them: AI-based matching and recruiters weigh skills they can see in action.') +
+    group(shown, 'Shown in your experience', '') + restore;
 }
 
 /* ================================================================
@@ -6045,6 +6442,8 @@ function confirmDownload() {
     if (!filename.endsWith('.pdf')) filename += '.pdf';
 
     var allPages = document.querySelectorAll('#viewport .page, #viewport .page-extra');
+    var textPages = measureCvText();
+    var finish = function(pdf) { applyPdfProperties(pdf); addTextLayer(pdf, textPages); };
 
     if (allPages.length <= 1) {
       var opt = {
@@ -6055,7 +6454,7 @@ function confirmDownload() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
-      html2pdf().set(opt).from(allPages[0]).toPdf().get('pdf').then(applyPdfProperties).save();
+      html2pdf().set(opt).from(allPages[0]).toPdf().get('pdf').then(finish).save();
     } else {
       /* Build a wrapper with all pages visible, each exactly 297mm tall.
          Use html2canvas total height = N * a4HeightPx so jsPDF splits cleanly. */
@@ -6082,7 +6481,7 @@ function confirmDownload() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
-      html2pdf().set(opt).from(wrapper).toPdf().get('pdf').then(applyPdfProperties).save().then(function() {
+      html2pdf().set(opt).from(wrapper).toPdf().get('pdf').then(finish).save().then(function() {
         document.body.removeChild(wrapper);
       });
     }

@@ -141,7 +141,14 @@ The two exports differ in what they can carry. The **Text PDF** comes out of the
 browser's print dialog: only `<title>` (PDF Title, and usually the suggested file name)
 and `<html lang>` (PDF `/Lang`) reach it, and Chrome tags the structure from the HTML.
 The **Image PDF** is written by jsPDF, so `applyPdfProperties()` sets every property,
-the language and `DisplayDocTitle` -- but its text is a picture no ATS can read. The
+the language and `DisplayDocTitle`. Its pages are pictures, so `addTextLayer()` writes
+every measured run of words over them in invisible text (PDF rendering mode 3, like an
+OCR layer), in Text PDF order. jsPDF cannot embed the page's WOFF2 fonts, so the layer
+uses the built-in Helvetica: Windows-1252 only (`winAnsiText()` folds or drops other
+letters, and the ATS checks warn), with each run's letter spacing set so it covers exactly
+the words underneath. Widths come from `HELVETICA_WIDTHS` -- the metrics PDF readers use
+-- because jsPDF's own tables are slightly off and the layer drifts into the next word.
+Check changes with `pdftotext -raw`: the Image PDF must give the same words as the Text PDF. The
 app's own `<html lang>` is `en` (the UI language); the CV language goes on `#viewport`
 and `#editor-view`.
 
@@ -150,6 +157,12 @@ where each run of words lands, then shows two orders: **column by column** (DOM 
 which is the order Chrome writes the text into the Text PDF) and **straight across** (each
 line over the full width, as simple parsers and `pdftotext -layout` read it). Check
 changes to it against a real Text PDF with `pdftotext -raw` and `pdftotext -layout`.
+
+`downloadWordCV()` exports a clean one-column **Word document** (`docxPackage()`, shared
+with the Word template): real Title/Heading styles plus direct formatting, bullets, role
+and dates on one line, and the PDF properties in `docProps/core.xml`. It is not the
+template's import format. Organisation names render as `<h3 class="entry-org">`, so the
+Text PDF's structure tags mark every job and degree.
 
 `printCV(true)` exports the **one-column Text PDF**: the same page clones and styles, with
 `oneColumnPrintCss()` stacking the sidebar above the main column, letting the pages flow
@@ -160,8 +173,12 @@ by their headings, splits the rest at punctuation, stop words (grammar and job-a
 boilerplate in seven languages) and verbs that open a bullet, then ranks the remaining
 words and phrases of up to three words by frequency and by whether they look like a tool,
 acronym or name. German capitalises every noun, so there only capitalised words are kept.
-`matchJobTerms()` compares crude stems (`stemWord()`) against the CV text: found, words
-apart, or missing.
+`matchJobTerms()` compares crude stems (`stemWord()`) against the CV text: found (and whether
+in a job or project entry, i.e. shown in use, or only listed in the sidebar), words apart,
+or missing. The job card also checks the ad's title (`jobAdTitle()`, editable) against the
+subtitle and latest role, and suggests writing both forms of acronyms the ad uses
+(`ACRONYMS` plus pairs spelled out in the ad or CV). The checks list covers location and
+links whose visible text hides the address.
 
 ## Server mode (optional self-hosting)
 
@@ -202,7 +219,7 @@ All visual formatting is controlled via CSS custom properties on `:root`:
 
 These are not bugs -- the app works well -- but they'll need attention as features grow:
 
-1. **Single-file monolith (~7400 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
+1. **Single-file monolith (~7800 lines)**: CSS, HTML, and JS all in one file. Hard to navigate. Plan: split into separate files under `src/` with a build script that concatenates them back into the single distributable `cv.html`.
 2. **Global state**: ~10 global variables manage app state. Plan: consolidate into a single `state` object.
 3. **Full editor re-render on every change**: `renderEditor()` rebuilds entire DOM via `innerHTML`, losing cursor position. Plan: targeted DOM updates.
 4. **HTML string concatenation**: Both renderer and editor build HTML via `html +=`. Works but fragile at scale.

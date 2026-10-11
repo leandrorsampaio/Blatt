@@ -47,8 +47,9 @@ That's it. Your work auto-saves to your browser as you type.
 - **Live A4 preview** — what you see is exactly what prints.
 - **Simple editing** — a live preview alongside a friendly form-based editor (no Markdown required).
 - **Photo** — upload one, frame it with drag + zoom, optionally make it black & white, and place it either as a square at the top of the sidebar or as a circle in the top-right corner. Size and border are adjustable; it appears on page 1 only.
-- **ATS tab** — set the PDF's title, language, author, subject, keywords and file name per CV version; check that a parser finds your name, email, phone, standard headings and dates; paste a job ad to see which of its key terms your CV is missing; and see the order in which applicant-tracking systems read your two columns.
+- **ATS tab** — set the PDF's title, language, author, subject, keywords and file name per CV version; check that a parser finds your name, email, phone, standard headings and dates; paste a job ad to see which of its key terms your CV is missing, whether it uses the ad's job title, which skills you list but never show in use, and which acronyms to spell out; and see the order in which applicant-tracking systems read your two columns.
 - **One-column Text PDF** — the same design with the sidebar stacked above the main column, for job portals whose parsers mix up columns.
+- **Word export** — a clean one-column `.docx` for portals that ask for Word, and a hidden text layer that makes even the pixel-perfect Image PDF readable to an ATS.
 - **Multi-page support** — content flows to additional pages with customizable headers.
 - **Content presets** — keep multiple versions of your CV (e.g. *English*, *German*, *Short*) side by side.
 - **Format presets** — save and reuse complete look-and-feel configurations; import/export as JSON.
@@ -103,7 +104,7 @@ Detail: Led the redesign of the core product.
 
 ## Tech & architecture
 
-The whole application is one `cv.html` file (~6,600 lines: CSS + HTML + vanilla JS), with the CV content and the PDF library embedded inline. The only pieces bundled are a self-contained copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime** (when self-hosted, it talks only to your own server).
+The whole application is one `cv.html` file (~7,800 lines: CSS + HTML + vanilla JS), with the CV content and the PDF library embedded inline. The only pieces bundled are a self-contained copy of [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and a locally embedded copy of the Open Sans font — **nothing is fetched from the network at runtime** (when self-hosted, it talks only to your own server).
 
 Source assets live in `src/`:
 
