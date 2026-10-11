@@ -59,7 +59,7 @@ function downloadWordTemplate() {
     wordParagraph('sidebar: Profile', 'Heading1'), wordParagraph('[Write a short professional summary.]'),
     wordParagraph('sidebar: Skills', 'Heading1'), wordParagraph('[Skill]: [Level]', '', true), wordParagraph('[Skill]: [Level]', '', true),
     wordParagraph('sidebar: Languages', 'Heading1'), wordParagraph('[Language]: [Level]', '', true),
-    wordParagraph('main: Experience', 'Heading1'), wordParagraph('[Department] | [Organisation]', 'Heading2'),
+    wordParagraph('main: Experience', 'Heading1'), wordParagraph('[Organisation] | [Department]', 'Heading2'),
     wordParagraph('Title: [Job title]'), wordParagraph('Date: [MM/YYYY] – [Present]'), wordParagraph('Detail: [Short description of your role.]'),
     wordParagraph('[Achievement or responsibility]', '', true), wordParagraph('[Achievement or responsibility]', '', true),
     wordParagraph('main: Education', 'Heading1'), wordParagraph('[University / School]', 'Heading2'),

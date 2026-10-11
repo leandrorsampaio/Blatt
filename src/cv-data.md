@@ -32,7 +32,7 @@ Product leader with 12 years of experience spanning data science, product manage
 
 ## main: Experience
 
-### Data Products Division | Analytix GmbH
+### Analytix GmbH | Data Products Division
 Title: Senior Product Manager
 Date: 01/2022 – Present
 Detail: Owning the product vision and roadmap for the company's flagship analytics platform serving 3,000+ enterprise clients.
@@ -49,7 +49,7 @@ Detail: Led the development of the real-time alerting module from concept to gen
   - Shipped MVP in 3 months, reaching **$2M ARR** within the first year
   - Introduced experimentation framework with weekly A/B test cadence
 
-### Strategy & Analytics | GlobalRetail SE
+### GlobalRetail SE | Strategy & Analytics
 Title: Lead Data Analyst
 Date: 03/2016 – 05/2019
 Detail: Built the central analytics function for a retail group with 500+ stores across Europe.

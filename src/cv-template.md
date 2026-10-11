@@ -29,7 +29,7 @@
 
 ## main: [Work Experience]
 
-### [Department / Team] | [Company / Organisation]
+### [Company / Organisation] | [Department / Team]
 Title: [Job Title]
 Date: [MM/YYYY] – [MM/YYYY]
 Topics: [Topic 1, Topic 2, Topic 3]

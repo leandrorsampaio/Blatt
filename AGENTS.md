@@ -46,7 +46,7 @@ src/
 - **Plain `<script src>`, never ES modules.** Browsers refuse `type="module"` (and `fetch()`) on pages opened from disk, but load classic scripts and stylesheets from a folder next to the page. All scripts share one global scope, exactly like the single `<script>` they were split from.
 - **Order matters.** cv.html loads the scripts in the order listed in its `<script src>` block; top-level code may only use what an earlier file defined. Event handlers registered at load (several `keydown` listeners) run in that order too. `boot.js` is last and starts the app.
 - **Missing folder.** If `app/` is not next to cv.html (opened from inside a zip, or copied alone), the `.missing-app` notice in cv.html covers the page; `app/css/cv.css` hides it.
-- **The print window** (Text PDF) gets the same stylesheets as links with absolute URLs and prints once they have loaded.
+- **The print window** (Text PDF) gets the same stylesheets as links with absolute URLs and prints once they and the fonts have loaded (fonts only start loading at layout; printing earlier falls back to Helvetica).
 
 ### JS files (`app/js/`, in load order)
 
@@ -180,7 +180,10 @@ changes to it against a real Text PDF with `pdftotext -raw` and `pdftotext -layo
 with the Word template): real Title/Heading styles plus direct formatting, bullets, role
 and dates on one line, and the PDF properties in `docProps/core.xml`. It is not the
 template's import format. Organisation names render as `<h3 class="entry-org">`, so the
-Text PDF's structure tags mark every job and degree.
+Text PDF's structure tags mark every job and degree; the company comes first in
+`### Company | Department`, since parsers take the first line as the employer.
+`keepHyphensTogether()` (render.js) wraps short hyphenated words in `.nobr`, so no line
+breaks after a hyphen and a parser never reads "cross- functional".
 
 `printCV(true)` exports the **one-column Text PDF**: the same page clones and styles, with
 `oneColumnPrintCss()` stacking the sidebar above the main column, letting the pages flow

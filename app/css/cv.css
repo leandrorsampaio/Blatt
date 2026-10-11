@@ -292,6 +292,9 @@ html, body {
   text-decoration: underline;
 }
 
+/* ── Short hyphenated words stay on one line (keepHyphensTogether in render.js) ── */
+.nobr { white-space: nowrap; }
+
 /* ── Photo (first page only, either in the sidebar or the header corner) ──
    The size slider is a 0-100 value; each placement maps it onto its own mm
    range. The image is always cover-fitted and centred, so shrinking the frame
