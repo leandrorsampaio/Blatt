@@ -1,5 +1,5 @@
 /* ================================================================
- *  LIBRARY -- The Configuration tab: CV versions and designs
+ *  LIBRARY -- Configuration (the gear in the tab bar): CV versions and designs
  * ================================================================ */
 
 function refreshLibraryIfOpen() {

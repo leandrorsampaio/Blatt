@@ -21,6 +21,39 @@ function refreshSection(si) {
     rt.addEventListener('paste', onRichTextPaste);
   });
   setupEntryDropZones(newEl);
+  nameEditorControls(newEl);
+}
+
+/* Name every field and symbol button after its label and where it sits ("Experience ›
+   Analytix GmbH › Job Title"), so screen readers and AI assistants that read the page
+   know what each one is. Labels sit next to their fields, so names are set after rendering. */
+function nameEditorControls(root) {
+  const valueOf = function(el) { return el ? (el.value || el.textContent || '').trim() : ''; };
+  root.querySelectorAll('input, select, [contenteditable="true"], button').forEach(function(el) {
+    if (el.closest('label') || (el.tagName === 'BUTTON' && (el.title || el.textContent.trim().length > 2))) return;
+    const section = el.closest('.ed-section');
+    const entry = el.closest('.ed-sub-entry, .ed-entry');
+    const parts = [];
+    if (section && !el.classList.contains('ed-section-title-input')) parts.push(valueOf(section.querySelector('.ed-section-title-input')) || 'Section');
+    if (entry) parts.push(valueOf(entry.querySelector('.ed-input')) || 'Entry');
+    const label = el.parentElement.querySelector(':scope > .ed-label');
+    let name = label ? label.textContent.trim()
+      : el.classList.contains('ed-section-title-input') ? 'Section title'
+      : el.classList.contains('ed-item-icon') ? 'Item icon'
+      : el.classList.contains('ed-item-input') ? 'Item'
+      : el.dataset.field === 'paragraphs' ? 'Text'
+      : el.classList.contains('ed-accordion-chevron') ? 'Open or close section'
+      : el.classList.contains('ed-item-remove') ? (el.closest('.ed-item-row') ? 'Remove item' : 'Remove entry')
+      : el.tagName === 'BUTTON' ? el.textContent.trim() : '';
+    if (!name) return;
+    if (name === 'Value') name = valueOf(el.parentElement.previousElementSibling && el.parentElement.previousElementSibling.querySelector('.ed-input')) || name;
+    if (el.closest('.ed-item-row')) {
+      const row = el.closest('.ed-item-row');
+      const rows = row ? Array.from(row.parentElement.querySelectorAll(':scope > .ed-item-row')) : [];
+      if (rows.length) name += ' ' + (rows.indexOf(row) + 1);
+    }
+    el.setAttribute('aria-label', parts.concat(name).join(' › '));
+  });
 }
 
 /* Rich text (contenteditable or pasted HTML) -> the Markdown subset Blatt stores:
@@ -258,6 +291,7 @@ function renderEditor() {
   /* Wire up drop zones for drag & drop */
   setupDropZones();
   setupEntryDropZones();
+  nameEditorControls(el);
 }
 
 function renderSidebarEditor(si, sec) {

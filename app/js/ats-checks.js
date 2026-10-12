@@ -37,11 +37,19 @@ function onAtsField(key, value) {
 }
 
 function renderAtsChecks() {
+  document.getElementById('ats-checks').innerHTML = atsCheckItems().map(function(item) {
+    return '<li class="' + item.level + '"><span>' + item.html + '</span></li>';
+  }).join('');
+}
+
+/* Every check as { level: ok|warn|error|info, html }; mixed lines and page count need
+   state.atsReading (measureCvText()) to be current */
+function atsCheckItems() {
   const data = parseMD(state.currentMD);
   const meta = cvMeta(data);
   const text = cvPlainText(data);
   const items = [];
-  const add = function(level, html) { items.push('<li class="' + level + '"><span>' + html + '</span></li>'); };
+  const add = function(level, html) { items.push({ level: level, html: html }); };
 
   if (data.header.name) add('ok', 'Name: <strong>' + esc(plainText(data.header.name)) + '</strong>');
   else add('error', 'No name at the top of the CV.');
@@ -129,7 +137,7 @@ function renderAtsChecks() {
   const pages = (state.atsReading || []).length;
   if (pages > 2) add('info', pages + ' pages. Recruiters usually expect one or two.');
 
-  document.getElementById('ats-checks').innerHTML = items.join('');
+  return items;
 }
 
 const ATS_COUNTRIES = new RegExp('\\b(' + ['Germany', 'Deutschland', 'Austria', 'Österreich', 'Switzerland', 'Schweiz', 'Suisse', 'Svizzera',

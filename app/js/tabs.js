@@ -1,9 +1,12 @@
 /* ================================================================
- *  TAB SWITCHING -- Preview / Editor / Photo / Configuration
+ *  TAB SWITCHING -- Preview / Editor / Photo / ATS, and Configuration (the gear)
  * ================================================================ */
 function switchTab(tab) {
   const btns = document.querySelectorAll('.tab-bar button');
-  btns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  btns.forEach(function(b) {
+    b.classList.toggle('active', b.dataset.tab === tab);
+    if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
   const viewport = document.getElementById('viewport');
   const editorView = document.getElementById('editor-view');
   const photoView = document.getElementById('photo-view');

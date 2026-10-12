@@ -268,21 +268,27 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 </script>
 
 <!-- Tab bar -->
-<div class="tab-bar">
-  <button class="active" data-tab="preview" onclick="switchTab('preview')">Preview</button>
+<nav class="tab-bar" aria-label="Views">
+  <button class="active" data-tab="preview" aria-current="page" onclick="switchTab('preview')">Preview</button>
   <button data-tab="editor" onclick="switchTab('editor')">Editor</button>
   <button data-tab="photo" onclick="switchTab('photo')">Photo</button>
   <button data-tab="ats" onclick="switchTab('ats')">ATS</button>
-  <button data-tab="configuration" onclick="switchTab('configuration')">Configuration</button>
   <div class="save-indicator" id="save-indicator">Saved automatically</div>
   <div class="sync-status" id="sync-status" hidden>
     <span id="sync-status-text"></span>
     <button type="button" id="sync-status-action" onclick="syncStatusAction()">Sign out</button>
   </div>
-</div>
+  <!-- Configuration manages every CV version and design, so it sits apart from the tabs of the CV being edited -->
+  <button class="tab-settings" data-tab="configuration" onclick="switchTab('configuration')" title="Configuration: CV versions, designs and backups" aria-label="Configuration">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </button>
+</nav>
 
 <!-- Preview view -->
-<div class="viewport active" id="viewport">
+<div class="viewport active" id="viewport" role="region" aria-label="CV preview">
   <div class="page" id="page" data-page="1">
     <div class="header"></div>
     <div class="content">
@@ -294,10 +300,10 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 </div>
 
 <!-- Editor view -->
-<div class="editor-view" id="editor-view"></div>
+<div class="editor-view" id="editor-view" role="region" aria-label="Editor"></div>
 
 <!-- Photo workspace -->
-<div class="photo-view" id="photo-view">
+<div class="photo-view" id="photo-view" role="region" aria-label="Photo">
   <main class="photo-page">
     <h2>Photo</h2>
     <p class="photo-intro">Upload a photo, frame it, and choose whether it prints in colour or black &amp; white. Placement, size and border live in the <strong>Photo</strong> section of the Format panel.</p>
@@ -354,7 +360,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 </div>
 
 <!-- ATS workspace -->
-<div class="ats-view" id="ats-view">
+<div class="ats-view" id="ats-view" role="region" aria-label="ATS">
   <main class="ats-page">
     <h2>ATS</h2>
     <p class="ats-intro">Job portals pass your CV through an applicant tracking system (ATS) that pulls the text out of the PDF. Here you set what the PDF says about itself, check what the machine finds, and see the order in which it reads your CV.</p>
@@ -379,7 +385,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
     <section class="ats-card">
       <div class="ats-card-heading"><h3>Match a job ad</h3></div>
       <p>Paste the job ad, or at least its tasks and requirements. Blatt picks out its key terms and shows which ones your CV already uses: an ATS ranks applicants by these words, and recruiters search for them. Nothing leaves your browser, and the ad is saved with this CV version.</p>
-      <textarea class="ats-job-input" id="ats-job" placeholder="Paste the job ad here…" oninput="onAtsJobInput(this.value)"></textarea>
+      <textarea class="ats-job-input" id="ats-job" aria-label="Job ad" placeholder="Paste the job ad here…" oninput="onAtsJobInput(this.value)"></textarea>
       <label class="ats-field ats-job-title"><span>Job title <em>Taken from the ad’s first line – correct it if needed</em></span><input type="text" id="ats-job-title" oninput="onAtsJobTitle(this.value)"></label>
       <div class="ats-job-result" id="ats-job-result"></div>
     </section>
@@ -399,7 +405,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 </div>
 
 <!-- Configuration workspace -->
-<div class="configuration-view" id="configuration-view">
+<div class="configuration-view" id="configuration-view" role="region" aria-label="Configuration">
   <main class="configuration-page">
     <h2>Configuration</h2>
     <p class="configuration-intro">Edits are saved automatically. Manage your CV versions and reusable designs here.</p>
@@ -440,7 +446,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 </div>
 
 <!-- Floating panel (preview only) -->
-<div class="panel" id="preview-panel">
+<div class="panel" id="preview-panel" role="region" aria-label="Preview actions">
   <button class="btn" id="fit-btn" onclick="toggleFit()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
@@ -480,6 +486,13 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
     </svg>
     <span>Download TXT</span>
   </button>
+
+  <button class="btn" onclick="openAiModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>
+    </svg>
+    <span>Edit with AI</span>
+  </button>
 </div>
 
 <!-- Page navigation (visible only when >1 page) -->
@@ -490,7 +503,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 </div>
 
 <!-- Format panel (always visible, left side) -->
-<div class="format-panel">
+<div class="format-panel" role="region" aria-label="Format">
   <div class="format-panel-header">
     <h3>Format</h3>
   </div>
@@ -506,43 +519,82 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 
 <!-- Download modal -->
 <div class="modal-overlay" id="download-modal" onclick="closeDownloadModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
+  <div class="modal modal--download" onclick="event.stopPropagation()">
     <h3>Download your CV</h3>
-    <p>Choose a filename and export method.</p>
+    <p>Pick the file that fits where your CV is going.</p>
+    <label class="modal-field-label" for="pdf-filename">File name <span>for the Image PDF and the Word file</span></label>
     <input type="text" class="modal-input" id="pdf-filename" value="" placeholder="Filename">
-    <div class="modal-export-options">
-      <button class="modal-export-option" onclick="confirmDownload()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        <span><span class="modal-export-label">Save as Image PDF</span><span class="modal-export-desc">Pixel-perfect picture, with hidden text an ATS can read</span></span>
+    <div class="download-grid">
+      <button class="download-card" onclick="printCV()">
+        <span class="download-card-badge">Recommended</span>
+        <span class="download-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/>
+          </svg>
+        </span>
+        <span class="download-card-title">Text PDF</span>
+        <span class="download-card-best">Best for online applications and job portals</span>
+        <span class="download-card-desc">Your design with real, searchable text that applicant-tracking systems (ATS) read reliably.</span>
+        <span class="download-card-how">Opens the print window: choose “Save as PDF”</span>
       </button>
-      <button class="modal-export-option modal-export-option--ats" onclick="printCV()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <polyline points="6 9 6 2 18 2 18 9"/>
-          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-          <rect x="6" y="14" width="12" height="8"/>
-        </svg>
-        <span><span class="modal-export-label">Print / Save as Text PDF</span><span class="modal-export-desc">Your layout, with text an ATS can read</span></span>
+      <button class="download-card" onclick="confirmDownload()">
+        <span class="download-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </span>
+        <span class="download-card-title">Image PDF</span>
+        <span class="download-card-best">Best for printing and sharing</span>
+        <span class="download-card-desc">An exact picture of every page, pixel for pixel. For applications, prefer the Text PDF.</span>
+        <span class="download-card-how">Downloads the file</span>
       </button>
-      <button class="modal-export-option modal-export-option--ats" onclick="printCV(true)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <rect x="4" y="2" width="16" height="20" rx="2"/>
-          <line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="16" y2="15"/>
-        </svg>
-        <span><span class="modal-export-label">Print / Save as one-column Text PDF</span><span class="modal-export-desc">Safest for job portals: no columns to mix up</span></span>
+      <button class="download-card" onclick="printCV(true)">
+        <span class="download-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <rect x="5" y="2" width="14" height="20" rx="2"/>
+            <line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </span>
+        <span class="download-card-title">One-column PDF</span>
+        <span class="download-card-best">Best for portals that mix up columns</span>
+        <span class="download-card-desc">The same content in a single column, so any parser reads it top to bottom. A plainer look.</span>
+        <span class="download-card-how">Opens the print window: choose “Save as PDF”</span>
       </button>
-      <button class="modal-export-option" onclick="downloadWordCV()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-          <polyline points="8 12 9.5 18 12 13.5 14.5 18 16 12"/>
-        </svg>
-        <span><span class="modal-export-label">Save as Word document (.docx)</span><span class="modal-export-desc">One column, for portals that ask for Word</span></span>
+      <button class="download-card" onclick="downloadWordCV()">
+        <span class="download-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <polyline points="8 12 9.5 18 12 13.5 14.5 18 16 12"/>
+          </svg>
+        </span>
+        <span class="download-card-title">Word document</span>
+        <span class="download-card-best">Best when a portal or recruiter asks for .docx</span>
+        <span class="download-card-desc">One column with simple formatting, editable in Word or Google Docs.</span>
+        <span class="download-card-how">Downloads the file</span>
       </button>
     </div>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeDownloadModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit with AI: points an AI assistant in the browser at window.blatt (app/js/agent.js) -->
+<div class="modal-overlay" id="ai-modal" onclick="closeAiModal(event)">
+  <div class="modal modal--ai" role="dialog" aria-labelledby="ai-modal-title" onclick="event.stopPropagation()">
+    <h3 id="ai-modal-title">Edit your CV with an AI assistant</h3>
+    <p>Blatt has commands an AI assistant can use in this tab: it reads your CV, changes it, and checks it for applicant-tracking systems. Every change shows in the preview, and you can undo it.</p>
+    <ol class="ai-steps">
+      <li>Open <strong>Claude in Chrome</strong>, in Chrome’s side panel or from Claude Desktop. Other assistants that control the browser can use the same commands.</li>
+      <li>Copy this prompt, add what you’d like, and send it.</li>
+    </ol>
+    <textarea class="modal-input ai-prompt" id="ai-prompt" rows="6" aria-label="Prompt for the AI assistant"></textarea>
+    <p class="ai-note">For example: “Tailor my CV to this job ad: …”, “Proofread it and fix typos”, “Make it fit on two pages”.</p>
+    <p class="ai-note ai-note--file" id="ai-file-note" hidden>Opened from your computer: let the extension read this file first. In Chrome, open Extensions → Claude → Details and turn on “Allow access to file URLs”.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeAiModal()">Close</button>
+      <button class="modal-confirm" onclick="copyAiPrompt()">Copy prompt</button>
     </div>
   </div>
 </div>
@@ -640,6 +692,7 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
 <script src="app/js/format.js"></script>
 <script src="app/js/format-presets.js"></script>
 <script src="app/js/sync.js"></script>
+<script src="app/js/agent.js"></script>
 <script src="app/js/boot.js"></script>
 </body>
 </html>

@@ -106,7 +106,7 @@ function buildDrawerUI() {
       if (item.type === 'select') {
         html += '<div class="fmt-row" data-fmt-key="' + item.key + '" onmouseenter="highlightFormatTarget(\'' + item.key + '\')" onmouseleave="clearFormatHighlight()">';
         html += '<span class="fmt-label">' + esc(item.label) + '</span>';
-        html += '<select class="fmt-select" id="fmt-' + item.key + '" onchange="onFormatChange(\'' + item.key + '\', this.value)">';
+        html += '<select class="fmt-select" id="fmt-' + item.key + '" aria-label="' + esc(group.group + ': ' + item.label) + '" onchange="onFormatChange(\'' + item.key + '\', this.value)">';
         for (const opt of item.options) {
           html += '<option value="' + esc(opt.value) + '"' + (opt.value === item.default ? ' selected' : '') + '>' + esc(opt.label) + '</option>';
         }
@@ -116,27 +116,27 @@ function buildDrawerUI() {
       } else if (item.type === 'toggle') {
         html += '<div class="fmt-row" data-fmt-key="' + item.key + '" onmouseenter="highlightFormatTarget(\'' + item.key + '\')" onmouseleave="clearFormatHighlight()">';
         html += '<span class="fmt-label">' + esc(item.label) + '</span>';
-        html += '<input type="checkbox" class="fmt-check-input" id="fmt-' + item.key + '"' + (item.default ? ' checked' : '') + ' onchange="onFormatChange(\'' + item.key + '\', this.checked)">';
+        html += '<input type="checkbox" class="fmt-check-input" id="fmt-' + item.key + '" aria-label="' + esc(group.group + ': ' + item.label) + '"' + (item.default ? ' checked' : '') + ' onchange="onFormatChange(\'' + item.key + '\', this.checked)">';
         html += '<button class="fmt-reset is-default" id="reset-' + item.key + '" onclick="resetField(\'' + item.key + '\')" title="Reset">&#x21ba;</button>';
         html += '</div>';
       } else if (item.type === 'range') {
         html += '<div class="fmt-row" data-fmt-key="' + item.key + '" onmouseenter="highlightFormatTarget(\'' + item.key + '\')" onmouseleave="clearFormatHighlight()">';
         html += '<span class="fmt-label">' + esc(item.label) + '</span>';
-        html += '<input type="range" class="fmt-range-input" id="fmt-' + item.key + '" value="' + item.default + '" min="' + item.min + '" max="' + item.max + '" step="' + item.step + '" oninput="onFormatChange(\'' + item.key + '\', parseFloat(this.value))">';
+        html += '<input type="range" class="fmt-range-input" id="fmt-' + item.key + '" aria-label="' + esc(group.group + ': ' + item.label) + '" value="' + item.default + '" min="' + item.min + '" max="' + item.max + '" step="' + item.step + '" oninput="onFormatChange(\'' + item.key + '\', parseFloat(this.value))">';
         html += '<span class="fmt-range-val" id="rangeval-' + item.key + '">' + item.default + (item.suffix || '') + '</span>';
         html += '<button class="fmt-reset is-default" id="reset-' + item.key + '" onclick="resetField(\'' + item.key + '\')" title="Reset">&#x21ba;</button>';
         html += '</div>';
       } else if (item.type === 'color') {
         html += '<div class="fmt-color-row" data-fmt-key="' + item.key + '" onmouseenter="highlightFormatTarget(\'' + item.key + '\')" onmouseleave="clearFormatHighlight()">';
         html += '<span class="fmt-label">' + esc(item.label) + '</span>';
-        html += '<input type="color" class="fmt-color-input" id="fmt-' + item.key + '" value="' + item.default + '" onchange="onFormatChange(\'' + item.key + '\', this.value)" oninput="onFormatChange(\'' + item.key + '\', this.value)">';
-        html += '<input type="text" class="fmt-color-hex" id="hex-' + item.key + '" value="' + item.default + '" onchange="onHexChange(\'' + item.key + '\', this.value)" maxlength="7">';
+        html += '<input type="color" class="fmt-color-input" id="fmt-' + item.key + '" aria-label="' + esc(group.group + ': ' + item.label) + '" value="' + item.default + '" onchange="onFormatChange(\'' + item.key + '\', this.value)" oninput="onFormatChange(\'' + item.key + '\', this.value)">';
+        html += '<input type="text" class="fmt-color-hex" id="hex-' + item.key + '" aria-label="' + esc(group.group + ': ' + item.label) + ' (hex code)" value="' + item.default + '" onchange="onHexChange(\'' + item.key + '\', this.value)" maxlength="7">';
         html += '<button class="fmt-reset is-default" id="reset-' + item.key + '" onclick="resetField(\'' + item.key + '\')" title="Reset">&#x21ba;</button>';
         html += '</div>';
       } else {
         html += '<div class="fmt-row" data-fmt-key="' + item.key + '" onmouseenter="highlightFormatTarget(\'' + item.key + '\')" onmouseleave="clearFormatHighlight()">';
         html += '<span class="fmt-label">' + esc(item.label) + '</span>';
-        html += '<input type="number" class="fmt-input" id="fmt-' + item.key + '" value="' + item.default + '" step="' + item.step + '" min="0" onchange="onFormatChange(\'' + item.key + '\', parseFloat(this.value))" oninput="onFormatChange(\'' + item.key + '\', parseFloat(this.value))">';
+        html += '<input type="number" class="fmt-input" id="fmt-' + item.key + '" aria-label="' + esc(group.group + ': ' + item.label) + '" value="' + item.default + '" step="' + item.step + '" min="0" onchange="onFormatChange(\'' + item.key + '\', parseFloat(this.value))" oninput="onFormatChange(\'' + item.key + '\', parseFloat(this.value))">';
         html += '<span class="fmt-unit">' + (item.suffix || item.unit) + '</span>';
         html += '<button class="fmt-reset is-default" id="reset-' + item.key + '" onclick="resetField(\'' + item.key + '\')" title="Reset">&#x21ba;</button>';
         html += '</div>';

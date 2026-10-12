@@ -69,21 +69,23 @@ src/
 | `pdf-text-layer.js` | `addTextLayer()`: invisible text over the Image PDF | -- |
 | `ats-checks.js`, `ats-reading.js`, `ats-job.js` | ATS tab: checks, reading-order preview, job ad match | -- |
 | `download.js` | Download modal, Text PDF (`printCV()`), Image PDF (`confirmDownload()`, loads `app/vendor/html2pdf`) | -- |
-| `library.js` | Configuration tab: CV versions and designs | -- |
+| `library.js` | Configuration (gear at the right of the tab bar): CV versions, designs, backups | -- |
 | `view.js` | Fit to screen, page navigation, template toggle | -- |
 | `photo.js` | One stored photo: crop stage, B&W, `renderPhoto()` | -- |
 | `format.js`, `format-presets.js` | `FORMAT_SCHEMA`, `applyFormat()`, format panel; design presets | -- |
 | `sync.js` | Mirrors all `cv-*` localStorage keys to a Blatt server, only when one answers `api/data` | `state.sync` |
+| `agent.js` | `window.blatt`: commands for AI assistants in the browser; the "Edit with AI" prompt | `blatt` |
 | `boot.js` | Storage migrations, then the start-up sequence | -- |
 
 ### How it works
 
 1. **Markdown parser** (`parseMD()`) reads structured MD into a data object with header, sidebar sections, and main sections
 2. **Renderers** convert parsed data into HTML for a pixel-perfect A4 layout
-3. **Five tabs**: Preview (live A4 page), Editor (form-based editing), Photo, ATS, Configuration
-4. **Format panel** (left sidebar): Real-time CSS variable controls for colors, fonts, spacing, layout
-5. **Preset system**: Save/load/import/export both format presets and content presets (localStorage)
-6. **PDF export**: Image PDF via html2pdf.js (`app/vendor/`), plus an ATS-friendly export via the browser print dialog
+3. **Four tabs** for the CV being edited: Preview (live A4 page), Editor (form-based editing), Photo, ATS. **Configuration** (every CV version and design, backups, Word import) is not about one CV, so it opens from the gear at the right of the tab bar
+4. **Download window**: one card per file (Text PDF, Image PDF, one-column PDF, Word), each saying what it is best for and whether it opens the print window or downloads
+5. **Format panel** (left sidebar): Real-time CSS variable controls for colors, fonts, spacing, layout
+6. **Preset system**: Save/load/import/export both format presets and content presets (localStorage)
+7. **PDF export**: Image PDF via html2pdf.js (`app/vendor/`), plus an ATS-friendly export via the browser print dialog
 
 ## Markdown Format
 
@@ -200,6 +202,30 @@ or missing. The job card also checks the ad's title (`jobAdTitle()`, editable) a
 subtitle and latest role, and suggests writing both forms of acronyms the ad uses
 (`ACRONYMS` plus pairs spelled out in the ad or CV). The checks list covers location and
 links whose visible text hides the address.
+
+## AI assistants (`window.blatt`)
+
+An AI assistant that controls the browser (Claude in Chrome, from Chrome's side panel or Claude
+Desktop) edits the CV through `window.blatt` in `app/js/agent.js` instead of clicking through the
+editor. It works in the open tab, so it needs no server and works for local files too (the
+extension needs "Allow access to file URLs" for those). `blatt.help()` is the assistant's manual:
+the commands, the Markdown dialect and the ATS rules -- **keep it in step with the parser and the
+ATS checks**. Commands: `getCV`, `setCV(markdown, { asNewVersion })`, `atsCheck`, `matchJob(ad)`,
+`properties`, `setProperties`, `versions`, `useVersion`, `template`, `undo`.
+
+- `setCV` takes the whole CV, strips a code fence, refuses a CV without a name or sections, and
+  returns `warnings` for lines the renderer would drop (unindented bullets in an entry, `###` in a
+  sidebar, text in a main section outside entries) plus the open ATS checks.
+- Changes go through the normal paths (localStorage, `renderCV`, editor/ATS refresh, so server
+  sync pushes them) and push a snapshot to an in-memory undo stack. The toast's Undo button and
+  `blatt.undo()` restore it, deleting a version the change created.
+- `atsCheckItems()` and `jobMatch()` return the ATS tab's checks and job match as data; the tab
+  renders the same data, so the two never disagree.
+- "Edit with AI" (preview panel) opens a prompt to paste into the assistant: page content is
+  information to Claude, not instructions, so the user's own prompt tells it to use `blatt.help()`.
+- For assistants that read the page instead, every editor field is named after its label and
+  place (`nameEditorControls()`: "Experience › Analytix GmbH › Job Title"), format controls carry
+  `aria-label`s, the views are labelled regions and the tab bar is a `<nav>` with `aria-current`.
 
 ## Server mode (optional self-hosting)
 

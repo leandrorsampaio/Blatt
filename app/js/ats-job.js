@@ -323,6 +323,27 @@ function restoreJobTerms() {
   renderAtsJob();
 }
 
+/* The CV being edited against a job ad: title and acronym tips ({ level, html }), every
+   key term with its status, the terms grouped, and the match percentage */
+function jobMatch(ad, jobTitle, ignored) {
+  const data = parseMD(state.currentMD), cvText = cvPlainText(data), cv = cvIndex(data);
+  const terms = matchJobTerms(jobKeyTerms(ad, ignored || []), cv);
+  const title = jobTitle || jobAdTitle(ad);
+  const tips = [];
+  if (title) tips.push(jobTitleCheck(title, data));
+  acronymTips(ad, cvText, cv).forEach(function(t) {
+    tips.push({ level: 'warn', html: 'Write “' + esc(t.long) + ' (' + esc(t.acronym) + ')” once: your CV only says “' + esc(t.has) +
+      '”, and a search for the other form misses it.' });
+  });
+  const by = function(status) { return terms.filter(function(t) { return t.status === status; }); };
+  const found = by('found');
+  return {
+    title: title, tips: tips, terms: terms, found: found, apart: by('apart'), missing: by('missing'),
+    shown: found.filter(function(t) { return t.inUse; }), listed: found.filter(function(t) { return !t.inUse; }),
+    percent: terms.length ? Math.round((found.length + by('apart').length / 2) / terms.length * 100) : 0,
+  };
+}
+
 function renderAtsJob() {
   clearTimeout(state.atsJobTimer);
   const meta = getContentMeta(getActiveContentName());
@@ -332,26 +353,14 @@ function renderAtsJob() {
   titleInput.placeholder = ad ? jobAdTitle(ad) : '';
   if (!ad) { box.innerHTML = ''; return; }
   const ignored = (meta.jobIgnore || '').split('\n').filter(Boolean);
-  const data = parseMD(state.currentMD), cvText = cvPlainText(data), cv = cvIndex(data);
-  const terms = matchJobTerms(jobKeyTerms(ad, ignored), cv);
-
-  /* Job title and acronym tips, in the style of the checks list */
-  const title = (meta.jobTitle || '').trim() || jobAdTitle(ad);
-  const tips = [];
-  if (title) { const t = jobTitleCheck(title, data); tips.push('<li class="' + t.level + '"><span>' + t.html + '</span></li>'); }
-  acronymTips(ad, cvText, cv).forEach(function(t) {
-    tips.push('<li class="warn"><span>Write “' + esc(t.long) + ' (' + esc(t.acronym) + ')” once: your CV only says “' + esc(t.has) +
-      '”, and a search for the other form misses it.</span></li>');
-  });
-  const tipList = tips.length ? '<ul class="ats-checks">' + tips.join('') + '</ul>' : '';
+  const m = jobMatch(ad, (meta.jobTitle || '').trim(), ignored);
+  const tipList = m.tips.length ? '<ul class="ats-checks">' + m.tips.map(function(t) {
+    return '<li class="' + t.level + '"><span>' + t.html + '</span></li>';
+  }).join('') + '</ul>' : '';
   const restore = ignored.length ? '<p class="ats-job-ignored">' + ignored.length + ' term' + (ignored.length === 1 ? '' : 's') +
     ' ignored · <button onclick="restoreJobTerms()">Show again</button></p>' : '';
-  if (!terms.length) { box.innerHTML = tipList + '<p class="ats-job-ignored">No key terms found yet. Paste more of the ad.</p>' + restore; return; }
-
-  const by = function(status) { return terms.filter(function(t) { return t.status === status; }); };
-  const found = by('found'), apart = by('apart'), missing = by('missing');
-  const shown = found.filter(function(t) { return t.inUse; }), listed = found.filter(function(t) { return !t.inUse; });
-  const percent = Math.round((found.length + apart.length / 2) / terms.length * 100);
+  if (!m.terms.length) { box.innerHTML = tipList + '<p class="ats-job-ignored">No key terms found yet. Paste more of the ad.</p>' + restore; return; }
+  const terms = m.terms, found = m.found, apart = m.apart, missing = m.missing, shown = m.shown, listed = m.listed, percent = m.percent;
   const chips = function(list) {
     return '<div class="ats-terms">' + list.map(function(t) {
       return '<span class="ats-term ' + (t.status === 'found' && !t.inUse ? 'listed' : t.status) + '">' + esc(t.label) + (t.count > 1 ? ' <small>×' + t.count + '</small>' : '') +
