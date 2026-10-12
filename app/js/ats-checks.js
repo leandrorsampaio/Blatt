@@ -88,7 +88,7 @@ function atsCheckItems() {
     add('warn', 'The link “' + esc(l.text) + '” shows no address. A parser reads the text, not the link behind it: write “' + esc(l.address) + '” as the link text.');
   });
 
-  const placeholder = text.match(/\[[^\]\n]{2,}\]/) || text.match(/lorem ipsum/i);
+  const placeholder = text.match(/\[[^\]\n]{2,}\]/) || text.match(/lorem ipsum|\b(donec|consectetur|adipiscing|vestibulum|malesuada|pharetra)\b/i);
   if (placeholder) add('error', 'Template text is still in the CV: “' + esc(placeholder[0]) + '”.');
 
   const chosen = getContentMeta(getActiveContentName()).language;
@@ -136,6 +136,10 @@ function atsCheckItems() {
 
   const pages = (state.atsReading || []).length;
   if (pages > 2) add('info', pages + ' pages. Recruiters usually expect one or two.');
+
+  /* Parsers don't mind small type, but people reading the CV after the parser do */
+  const bodyPt = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs-body'));
+  if (bodyPt && bodyPt < 10) add('info', 'Body text is ' + bodyPt + ' pt. Recruiters usually expect 10 pt or more: Format panel → Font Sizes → Body.');
 
   return items;
 }

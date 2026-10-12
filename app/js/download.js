@@ -132,7 +132,13 @@ function oneColumnPrintCss() {
     '.cv-photo--square{width:calc(var(--sidebar-width) - var(--page-margin-left) - var(--col-gap))}' +
     '.cv-photo--circle{top:0;right:0}' +
     'h2,.spacer-heading,.entry-org,.entry-role{break-after:avoid}' +
-    '.entry,.contact-item,li{break-inside:avoid}';
+    '.entry,.contact-item,li{break-inside:avoid}' +
+    /* The date follows the title on the same line instead of sitting at the right
+       edge: parsers that group text by blocks would otherwise read the date after
+       the bullets and fail to pair it with the job */
+    '.entry-role{justify-content:flex-start !important;gap:0 !important}' +
+    '.entry-role .dates{margin-left:6px}' +
+    '.entry-role .dates::before{content:"| "}';
 }
 
 function confirmDownload() {
