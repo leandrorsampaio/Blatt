@@ -2,6 +2,7 @@
  *  DOWNLOAD / PDF -- PDF export via html2pdf.js (lazy-loaded)
  * ================================================================ */
 var html2pdfLoaded = null;
+var TOUCH_QUERY = window.matchMedia('(pointer: coarse)');
 function loadHtml2Pdf() {
   if (!html2pdfLoaded) html2pdfLoaded = new Promise(function(resolve, reject) {
     var s = document.createElement('script');
@@ -23,6 +24,8 @@ function openDownloadModal() {
   const input = document.getElementById('pdf-filename');
   if (!input.value) input.value = cvMeta().filename;
   modal.classList.add('open');
+  /* On a touch screen the keyboard would cover the choices */
+  if (TOUCH_QUERY.matches) return;
   input.focus();
   input.select();
 }
@@ -81,9 +84,15 @@ function printCV(oneColumn) {
   html += '.page:last-child,.page-extra:last-child{page-break-after:auto}';
   html += '.panel,.modal-overlay,.toast,.format-panel,.format-panel-toggle,.tab-bar,.editor-view,.configuration-view,.page-nav,.confirm-overlay{display:none !important}';
   html += '@media print{html,body{height:auto !important;overflow:visible !important}}';
+  /* Phones may not open the print sheet on their own, or the person closes it
+     before saving: a button opens it again (never printed itself) */
+  if (TOUCH_QUERY.matches) html += '.print-again{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:10;padding:12px 22px;border:none;border-radius:10px;' +
+    'background:#2c3e6b;color:white;font:600 16px system-ui,-apple-system,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)}@media print{.print-again{display:none}}';
   if (oneColumn) html += oneColumnPrintCss();
   html += '</style>';
-  html += '</head><body>' + pagesHTML + '</body></html>';
+  html += '</head><body>' + pagesHTML;
+  if (TOUCH_QUERY.matches) html += '<button class="print-again" onclick="window.print()">Print or save as PDF</button>';
+  html += '</body></html>';
 
   /* Open in new tab and trigger print */
   var printWindow = window.open('', '_blank');
@@ -151,13 +160,14 @@ function confirmDownload() {
     var allPages = document.querySelectorAll('#viewport .page, #viewport .page-extra');
     var textPages = measureCvText();
     var finish = function(pdf) { applyPdfProperties(pdf); addTextLayer(pdf, textPages); };
+    var scale = pdfCanvasScale(allPages.length);
 
     if (allPages.length <= 1) {
       var opt = {
         margin: 0,
         filename: filename,
         image: { type: 'jpeg', quality: 1 },
-        html2canvas: { scale: 3, useCORS: true, height: a4HeightPx, windowHeight: a4HeightPx },
+        html2canvas: { scale: scale, useCORS: true, height: a4HeightPx, windowHeight: a4HeightPx },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
@@ -184,7 +194,7 @@ function confirmDownload() {
         margin: 0,
         filename: filename,
         image: { type: 'jpeg', quality: 1 },
-        html2canvas: { scale: 3, useCORS: true, height: totalHeight, windowHeight: totalHeight },
+        html2canvas: { scale: scale, useCORS: true, height: totalHeight, windowHeight: totalHeight },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
@@ -193,6 +203,15 @@ function confirmDownload() {
       });
     }
   }).catch(function(err) { console.error(err); });
+}
+
+/* The Image PDF draws every page onto one canvas at 3x. Phones and tablets cap a
+   canvas at about 16.7 million pixels (iOS Safari) and leave it blank beyond that,
+   so there the scale drops as the page count grows: 3 pages still get 2.4x. */
+function pdfCanvasScale(pageCount) {
+  if (!TOUCH_QUERY.matches) return 3;
+  var pagePixels = (210 * 96 / 25.4) * (297 * 96 / 25.4);
+  return Math.min(3, Math.floor(Math.sqrt(16000000 / (pagePixels * pageCount)) * 10) / 10);
 }
 
 /* Close modal on Escape */

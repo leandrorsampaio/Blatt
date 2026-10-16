@@ -25,7 +25,8 @@ function switchTab(tab) {
     panel.style.display = '';
     document.getElementById('page-nav').style.display = '';
     formatToggle.style.display = '';
-    /* Restore format panel to its last user-chosen state */
+    /* Restore format panel to its last user-chosen state (on a phone it opens closed) */
+    if (isPhoneLayout()) state.formatPanelMinimized = true;
     if (!state.formatPanelMinimized) {
       formatPanel.classList.remove('hidden');
       viewport.classList.remove('full-width');

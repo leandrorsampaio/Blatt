@@ -160,6 +160,7 @@ function renderEditorSection(si) {
   var typeLabel = sec.type === 'main' ? 'organization' : sec.type;
   h += '<span class="ed-section-type ' + sec.type + '">' + typeLabel + '</span>';
   h += '<input class="ed-section-title-input" value="' + esc(sec.title) + '" oninput="state.editorData.sections[' + si + '].title=this.value;markDirty()">';
+  h += moveButtons('moveSection(' + si + ',', sectionMoveTarget(si, -1) !== -1, sectionMoveTarget(si, 1) !== -1, 'section');
   h += '<button class="ed-section-remove" onclick="confirmRemoveSection(' + si + ')" title="Remove section">&times;</button>';
   h += '<button class="ed-accordion-chevron" onclick="toggleAccordion(' + si + ')">&#x25BE;</button>';
   h += '</div>';
@@ -343,12 +344,14 @@ function renderMainEditor(si, sec) {
     var entry = sec.entries[ei];
     if (entry.title === '(same)') { ei++; continue; }
 
+    var subStart = entryGroupEnd(sec.entries, ei);
     h += '<div class="ed-entry" data-si="' + si + '" data-ei="' + ei + '" data-scope="entry">';
 
     /* Entry header with drag handle */
     h += '<div class="ed-entry-header">';
     h += '<span class="ed-entry-drag-handle" draggable="true" ondragstart="onEntryDragStart(event,' + si + ',' + ei + ')" ondragend="onEntryDragEnd(event)">&#x2630;</span>';
     h += '<span style="font-size:8pt;font-weight:600;color:var(--color-black);flex:1">' + esc(entry.title || 'New Entry') + '</span>';
+    h += moveButtons('moveEntry(' + si + ',' + ei + ',', prevEntryGroup(sec.entries, ei) !== -1, subStart < sec.entries.length, 'entry');
     h += '<button class="ed-item-remove" onclick="confirmRemoveEntry(' + si + ',' + ei + ')">&times;</button>';
     h += '</div>';
 
@@ -356,15 +359,13 @@ function renderMainEditor(si, sec) {
     h += renderEntryFixedFields(si, ei, entry, false);
 
     /* Sub-entries */
-    var subStart = ei + 1;
-    while (subStart < sec.entries.length && sec.entries[subStart].title === '(same)') { subStart++; }
-
     h += '<div class="ed-sub-entries" data-si="' + si + '" data-parent-ei="' + ei + '">';
     for (var sei = ei + 1; sei < subStart; sei++) {
       h += '<div class="ed-sub-entry" data-si="' + si + '" data-ei="' + sei + '" data-scope="sub-entry">';
       h += '<div class="ed-sub-entry-header">';
       h += '<span class="ed-entry-drag-handle" draggable="true" ondragstart="onSubEntryDragStart(event,' + si + ',' + sei + ',' + ei + ')" ondragend="onSubEntryDragEnd(event)">&#x2630;</span>';
       h += '<span style="font-size:8pt;color:var(--color-grey);font-style:italic;flex:1">(same organisation)</span>';
+      h += moveButtons('moveSubEntry(' + si + ',' + sei + ',', sei > ei + 1, sei + 1 < subStart, 'role');
       h += '<button class="ed-item-remove" onclick="confirmRemoveEntry(' + si + ',' + sei + ')">&times;</button>';
       h += '</div>';
       h += renderEntryFixedFields(si, sei, sec.entries[sei], true);

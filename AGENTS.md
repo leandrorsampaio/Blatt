@@ -61,7 +61,7 @@ src/
 | `parser.js` | `parseMD()` -- structured MD to data object | -- |
 | `render.js` | `renderCV()`, `renderHeader()`, `renderSidebarSection()`, `renderMainSection()` | -- |
 | `tabs.js` | Tab switching, format panel toggle | -- |
-| `editor.js`, `editor-drag.js`, `editor-to-md.js` | Form editor, drag & drop reordering, `editorToMD()` | `state.editorData` |
+| `editor.js`, `editor-drag.js`, `editor-to-md.js` | Form editor, reordering (drag & drop, ▲▼ buttons on touch screens), `editorToMD()` | `state.editorData` |
 | `content-presets.js` | CV versions (localStorage CRUD) | -- |
 | `word.js` | Word template + import, Word CV export (`docxPackage()`) | -- |
 | `text-export.js` | Plain-text CV | -- |
@@ -70,7 +70,7 @@ src/
 | `ats-checks.js`, `ats-reading.js`, `ats-job.js` | ATS tab: checks, reading-order preview, job ad match | -- |
 | `download.js` | Download modal, Text PDF (`printCV()`), Image PDF (`confirmDownload()`, loads `app/vendor/html2pdf`) | -- |
 | `library.js` | Configuration (gear at the right of the tab bar): CV versions, designs, backups | -- |
-| `view.js` | Fit to screen, page navigation, template toggle | -- |
+| `view.js` | Fit to screen (phone fit included), page navigation and swipe, template toggle, `isPhoneLayout()` | -- |
 | `photo.js` | One stored photo: crop stage, B&W, `renderPhoto()` | -- |
 | `format.js`, `format-presets.js` | `FORMAT_SCHEMA`, `applyFormat()`, format panel; design presets | -- |
 | `sync.js` | Mirrors all `cv-*` localStorage keys to a Blatt server, only when one answers `api/data` | `state.sync` |
@@ -226,6 +226,26 @@ ATS checks**. Commands: `getCV`, `setCV(markdown, { asNewVersion })`, `atsCheck`
 - For assistants that read the page instead, every editor field is named after its label and
   place (`nameEditorControls()`: "Experience › Analytix GmbH › Job Title"), format controls carry
   `aria-label`s, the views are labelled regions and the tab bar is a `<nav>` with `aria-current`.
+
+## Phones
+
+The phone layout is meant for the served app (self-hosting): a zip opened from disk
+can't run on a phone. It is one block at the end of `app/css/app.css`, at
+`max-width: 760px` -- the same query as `isPhoneLayout()` in view.js, so keep the two
+in step. On a phone the preview actions become a toolbar along the bottom (with a
+Format button, `.phone-only`; "Edit with AI" is `.phone-hidden`), the format panel is a
+bottom sheet that starts closed, and `applyFit()` scales the page from its top left
+corner to sit between the tab bar and the toolbar or the open sheet. Swiping turns the
+page; pinch zoom is the browser's own.
+
+Touch screens (`hover: none`) get ▲▼ buttons (`moveButtons()`, `.ed-touch-only`) in
+place of the drag handles, since HTML5 drag & drop is unreliable with fingers. A
+company moves together with its `(same)` roles, by button or by dragging
+(`moveEntryGroupTo()`). `pointer: coarse` gets 16px fields (iOS zooms into smaller
+ones) and bigger buttons. Exports on touch screens: the Text PDF window carries a
+"Print or save as PDF" button, in case the print sheet doesn't open by itself, and the
+Image PDF's canvas scale drops below 3x as pages are added (`pdfCanvasScale()`), since
+iOS leaves a canvas over ~16.7 million pixels blank.
 
 ## Server mode (optional self-hosting)
 

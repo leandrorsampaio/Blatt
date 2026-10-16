@@ -435,13 +435,15 @@ document.getElementById('photo-file-input').addEventListener('change', function(
     if (!state.photoImg) return;
     e.preventDefault();
     stage.setPointerCapture(e.pointerId);
-    state.photoDrag = { x: e.clientX, y: e.clientY, ox: state.photo.ox, oy: state.photo.oy };
+    /* On a phone the stage is drawn smaller than PHOTO_STAGE: scale the finger's path */
+    state.photoDrag = { x: e.clientX, y: e.clientY, ox: state.photo.ox, oy: state.photo.oy,
+                        k: PHOTO_STAGE / (stage.clientWidth || PHOTO_STAGE) };
     stage.classList.add('--dragging');
   });
   stage.addEventListener('pointermove', function(e) {
     if (!state.photoDrag) return;
-    state.photo.ox = state.photoDrag.ox + (e.clientX - state.photoDrag.x);
-    state.photo.oy = state.photoDrag.oy + (e.clientY - state.photoDrag.y);
+    state.photo.ox = state.photoDrag.ox + (e.clientX - state.photoDrag.x) * state.photoDrag.k;
+    state.photo.oy = state.photoDrag.oy + (e.clientY - state.photoDrag.y) * state.photoDrag.k;
     clampPhotoOffset();
     drawPhotoStage();
   });

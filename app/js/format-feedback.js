@@ -37,6 +37,8 @@ var FORMAT_HIGHLIGHT_MAP = {
 var SPACING_KEYS = ['page-margin-top', 'page-margin-right', 'page-margin-bottom', 'page-margin-left', 'col-gap', 'content-gap', 'sidebar-gap', 'heading-gap', 'entry-gap', 'sub-entry-gap', 'line-height'];
 
 function highlightFormatTarget(key) {
+  /* A tap fires mouseenter but no mouseleave: the highlight would stay on */
+  if (window.matchMedia('(hover: none)').matches) return;
   if (SPACING_KEYS.indexOf(key) !== -1) {
     showSpacingOverlays(key);
     return;

@@ -196,31 +196,118 @@ function setupDropZones() {
       /* Skip no-op moves */
       if (targetDataIdx === si || targetDataIdx === si + 1) return;
 
-      var from = si;
       var to = targetDataIdx;
-      if (from < to) to--;
-      if (from === to) return;
-
-      /* Move in data */
-      var moved = state.editorData.sections.splice(from, 1)[0];
-      state.editorData.sections.splice(to, 0, moved);
-
-      /* Update accordion state */
-      var oldAcc = state.editorAccordion;
-      var newAcc = {};
-      for (var i = 0; i < state.editorData.sections.length; i++) {
-        var origIdx;
-        if (i === to) origIdx = from;
-        else if (from < to) origIdx = (i >= from && i < to) ? i + 1 : i;
-        else origIdx = (i > to && i <= from) ? i - 1 : i;
-        if (oldAcc[origIdx]) newAcc[i] = true;
-      }
-      state.editorAccordion = newAcc;
-
-      renderEditor();
-      markDirty();
+      if (si < to) to--;
+      moveSectionTo(si, to);
     });
   });
+}
+
+/* Move section `from` so that it ends up at index `to`; open sections stay open */
+function moveSectionTo(from, to) {
+  if (from === to) return;
+  var moved = state.editorData.sections.splice(from, 1)[0];
+  state.editorData.sections.splice(to, 0, moved);
+
+  var oldAcc = state.editorAccordion;
+  var newAcc = {};
+  for (var i = 0; i < state.editorData.sections.length; i++) {
+    var origIdx;
+    if (i === to) origIdx = from;
+    else if (from < to) origIdx = (i >= from && i < to) ? i + 1 : i;
+    else origIdx = (i > to && i <= from) ? i - 1 : i;
+    if (oldAcc[origIdx]) newAcc[i] = true;
+  }
+  state.editorAccordion = newAcc;
+
+  renderEditor();
+  markDirty();
+}
+
+/* ── Reorder with buttons (touch screens and phones, where dragging is unreliable) ── */
+
+/* The ▲▼ pair; `call` is the start of the handler call, e.g. "moveSection(3,", and the
+   direction completes it. CSS shows the pair only where the drag handles are hidden. */
+function moveButtons(call, canUp, canDown, what) {
+  return '<button class="ed-move-btn ed-touch-only" onclick="' + call + '-1)" title="Move ' + what + ' up"' + (canUp ? '' : ' disabled') + '>&#x25B2;</button>' +
+    '<button class="ed-move-btn ed-touch-only" onclick="' + call + '1)" title="Move ' + what + ' down"' + (canDown ? '' : ' disabled') + '>&#x25BC;</button>';
+}
+
+/* Where section si goes one step up (dir -1) or down (dir 1), or -1 if it can't.
+   A sidebar section swaps with its neighbour in the sidebar on the same page. A main
+   section swaps with the next main section, or crosses a page break: up from the
+   top of a page it goes to the end of the page before, down from the end to the
+   top of the page after. Sidebar sections in between are skipped. */
+function sectionMoveTarget(si, dir) {
+  var secs = state.editorData.sections;
+  var type = secs[si].type;
+  for (var j = si + dir; j >= 0 && j < secs.length; j += dir) {
+    if (secs[j].type === 'page') return type === 'main' ? j : -1;
+    if (secs[j].type === type) return j;
+  }
+  return -1;
+}
+
+function moveSection(si, dir) {
+  var j = sectionMoveTarget(si, dir);
+  if (j === -1) return;
+  var secs = state.editorData.sections;
+  if (secs[j].type === 'page' || secs[si].type === 'main') moveSectionTo(si, j);
+  else {
+    /* Sidebar sections swap places, so the main sections between them stay put */
+    var a = secs[si]; secs[si] = secs[j]; secs[j] = a;
+    var acc = state.editorAccordion, open = acc[si];
+    if (acc[j]) acc[si] = true; else delete acc[si];
+    if (open) acc[j] = true; else delete acc[j];
+    renderEditor();
+    markDirty();
+  }
+}
+
+/* An entry and the roles that follow it as "(same)" form one group */
+function entryGroupEnd(entries, ei) {
+  var e = ei + 1;
+  while (e < entries.length && entries[e].title === '(same)') e++;
+  return e;
+}
+
+/* The first entry of the group before ei's, or -1 if ei's is the first */
+function prevEntryGroup(entries, ei) {
+  for (var p = ei - 1; p >= 0; p--) {
+    if (entries[p].title !== '(same)') return p;
+  }
+  return -1;
+}
+
+/* Move the group that starts at `from` to just before index `before` (entries.length = the end) */
+function moveEntryGroupTo(si, from, before) {
+  var entries = state.editorData.sections[si].entries;
+  var end = entryGroupEnd(entries, from);
+  if (before >= from && before <= end) return;
+  var group = entries.splice(from, end - from);
+  if (before > from) before -= group.length;
+  Array.prototype.splice.apply(entries, [before, 0].concat(group));
+  refreshSection(si); markDirty();
+}
+
+function moveEntry(si, ei, dir) {
+  var entries = state.editorData.sections[si].entries;
+  if (dir < 0) {
+    var p = prevEntryGroup(entries, ei);
+    if (p !== -1) moveEntryGroupTo(si, ei, p);
+  } else {
+    var next = entryGroupEnd(entries, ei);
+    if (next < entries.length) moveEntryGroupTo(si, ei, entryGroupEnd(entries, next));
+  }
+}
+
+/* A role moves within its organisation only */
+function moveSubEntry(si, ei, dir) {
+  var entries = state.editorData.sections[si].entries;
+  var j = ei + dir;
+  if (entries[ei].title !== '(same)' || j < 0 || j >= entries.length || entries[j].title !== '(same)') return;
+  var a = entries[ei]; entries[ei] = entries[j]; entries[j] = a;
+  refreshSection(si); markDirty();
 }
 
 /* ── Reorder: entries via drag & drop ── */
@@ -312,19 +399,10 @@ function setupEntryDropZones(root) {
         if (e.clientY < r.top + r.height / 2) { pos = i; break; }
       }
 
-      var si = entryDrag.si, from = entryDrag.ei;
-      /* Map visual position to data index */
-      var targetEi;
-      if (pos < entries.length) targetEi = parseInt(entries[pos].dataset.ei);
-      else if (entries.length > 0) targetEi = parseInt(entries[entries.length - 1].dataset.ei) + 1;
-      else targetEi = 0;
-
-      if (from < targetEi) targetEi--;
-      if (from === targetEi) return;
-
-      var moved = state.editorData.sections[si].entries.splice(from, 1)[0];
-      state.editorData.sections[si].entries.splice(targetEi, 0, moved);
-      refreshSection(si); markDirty();
+      /* Map visual position to data index; the entry's roles move with it */
+      var si = entryDrag.si;
+      var before = pos < entries.length ? parseInt(entries[pos].dataset.ei) : state.editorData.sections[si].entries.length;
+      moveEntryGroupTo(si, entryDrag.ei, before);
     });
   });
 

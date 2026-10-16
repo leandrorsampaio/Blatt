@@ -71,6 +71,7 @@ state.currentMD = getDefaultMD();
   refreshContentPresetSelect();
 })();
 
+initPhoneLayout();
 renderCV(state.currentMD);
 applyFit();
 initServerSync();
