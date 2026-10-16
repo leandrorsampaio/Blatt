@@ -1915,6 +1915,7 @@
    and 16px fields (iOS zooms into any smaller field it focuses). */
 .phone-only { display: none !important; }
 .ed-touch-only { display: none; }
+.phone-cv, .cv-full-bar { display: none; }
 
 @media (hover: none), (max-width: 760px) {
   .ed-touch-only { display: flex; }
@@ -1949,10 +1950,84 @@
   .tab-bar .sync-status { flex-shrink: 0; padding-right: 10px; }
   .tab-bar #sync-status-text { display: none; }
 
-  /* Preview: applyFit() scales and places the page while it fits the screen */
-  .viewport { margin-left: 0; padding: 56px 8px 96px; justify-content: safe center; }
-  .viewport.phone-fit { justify-content: flex-start; padding-right: 0; padding-bottom: 0; }
-  .page-nav { left: 50%; bottom: calc(76px + env(safe-area-inset-bottom)); }
+  /* Preview: a card with a thumbnail of page 1 in place of the page itself */
+  .viewport { margin-left: 0; }
+  .viewport.active:not(.cv-full) { display: none; }
+  .viewport.active ~ .phone-cv { display: flex; }
+  .page-nav, #fit-btn { display: none !important; }
+  .phone-cv {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 100vh;
+    padding: 72px 16px calc(100px + env(safe-area-inset-bottom));
+    font-family: 'Open Sans', sans-serif;
+  }
+  .phone-cv-thumb { border-radius: 3px; box-shadow: 0 6px 24px rgba(0,0,0,0.18); cursor: pointer; }
+  /* renderPhoneCard() sizes the frame and scales the page copy to it */
+  .phone-cv-thumb-frame { position: relative; overflow: hidden; background: var(--ui-bg); pointer-events: none; }
+  .phone-cv-thumb-frame > .page { transform-origin: top left; box-shadow: none; }
+  .phone-cv-meta { display: flex; flex-direction: column; align-items: center; gap: 1px; text-align: center; }
+  .phone-cv-meta strong { font-size: 12pt; color: var(--color-black); }
+  .phone-cv-meta span { font-size: 9pt; color: var(--color-grey); }
+  .phone-cv-open {
+    padding: 11px 24px;
+    border: none;
+    border-radius: 10px;
+    background: var(--color-blue);
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 10pt;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Full screen: every page at the screen's width (--cv-full-zoom, set by applyFit()), scrolling down */
+  body.cv-full-open { overflow: hidden; }
+  .viewport.cv-full {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 0;
+    padding: calc(58px + env(safe-area-inset-top)) 8px calc(24px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--ui-border);
+  }
+  body.format-sheet-open .viewport.cv-full { bottom: 52vh; bottom: 52dvh; padding-bottom: 16px; }
+  .viewport.cv-full .page,
+  .viewport.cv-full .page-extra { display: flex !important; zoom: var(--cv-full-zoom, 0.45); box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+  body.cv-full-open .cv-full-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1060;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: calc(48px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 10px 0 4px;
+    border-bottom: 1px solid var(--ui-border);
+    background: var(--ui-bg);
+    font-family: 'Open Sans', sans-serif;
+  }
+  .cv-full-close { width: 44px; height: 44px; border: none; background: none; color: var(--color-black); font-size: 26px; line-height: 1; cursor: pointer; }
+  .cv-full-title { flex: 1; text-align: center; font-size: 9pt; color: var(--color-grey); }
+  .cv-full-format {
+    padding: 8px 14px;
+    border: 1.5px solid var(--ui-border);
+    border-radius: 8px;
+    background: var(--ui-bg);
+    color: var(--color-black);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 9pt;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  body.format-sheet-open .cv-full-format { visibility: hidden; }
 
   /* Preview actions: a toolbar along the bottom */
   .panel {
@@ -1979,7 +2054,7 @@
   }
   .panel .btn svg { width: 20px; height: 20px; }
 
-  /* Format panel: a bottom sheet over the toolbar; the page shrinks to fit above it */
+  /* Format panel: a bottom sheet; the full-screen CV ends above it */
   .format-panel {
     top: auto;
     bottom: 0;

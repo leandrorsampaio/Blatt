@@ -97,5 +97,10 @@ function toggleFormatPanel() {
     viewport.classList.remove('full-width');
     toggle.innerHTML = '&#x25C0;';
   }
+  /* On a phone the sheet opens over the full-screen CV, which then ends above it */
+  if (isPhoneLayout()) {
+    if (!state.formatPanelMinimized) openCvFullscreen();
+    document.body.classList.toggle('format-sheet-open', !state.formatPanelMinimized);
+  }
   if (state.fitted) applyFit();
 }

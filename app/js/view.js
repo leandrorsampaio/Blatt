@@ -2,45 +2,32 @@
  *  FIT TO SCREEN -- Scale A4 page to browser window
  * ================================================================ */
 
-/* Phones get their own layout (app.css, same breakpoint): a bottom toolbar, the
-   format panel as a bottom sheet, the editor in one column. */
+/* Phones get their own layout (app.css, same breakpoint): they open on the Editor,
+   the Preview tab shows a card with a thumbnail of page 1, and the CV itself opens
+   full screen, every page at the screen's width, scrolling down like a PDF. */
 var PHONE_QUERY = window.matchMedia('(max-width: 760px)');
 function isPhoneLayout() { return PHONE_QUERY.matches; }
 
+const PAGE_WIDTH_PX = 210 * 96 / 25.4;
+
 function applyFit() {
   const viewport = document.getElementById('viewport');
-  const pageWidthPx = 210 * 96 / 25.4;
-  const pageHeightPx = 297 * 96 / 25.4;
-  if (state.fitted && isPhoneLayout()) {
-    /* The scaled page sits below the tab bar and above the toolbar or the open
-       format sheet. The viewport is scaled from its top left corner, so its
-       padding is set in unscaled pixels to land the page there. */
-    const top = 44 + 12;
-    const sheet = document.querySelector('.format-panel');
-    const below = sheet && !sheet.classList.contains('hidden') ? sheet.getBoundingClientRect().height
-      : document.getElementById('preview-panel').offsetHeight;
-    const availW = window.innerWidth - 16;
-    const availH = window.innerHeight - top - below - 12;
-    const scale = Math.min(availW / pageWidthPx, availH / pageHeightPx, 1);
-    viewport.classList.add('phone-fit');
-    viewport.style.transform = 'scale(' + scale + ')';
-    viewport.style.transformOrigin = 'top left';
-    viewport.style.paddingTop = (top / scale) + 'px';
-    viewport.style.paddingLeft = ((window.innerWidth - pageWidthPx * scale) / 2 / scale) + 'px';
-    viewport.style.height = window.innerHeight + 'px';
+  if (isPhoneLayout()) {
+    /* No scaling: the card shows a thumbnail, and full screen zooms each page (app.css) */
+    viewport.style.transform = '';
+    viewport.style.height = '';
+    document.documentElement.style.setProperty('--cv-full-zoom', String((window.innerWidth - 16) / PAGE_WIDTH_PX));
     return;
   }
-  viewport.classList.remove('phone-fit');
-  viewport.style.paddingTop = '';
-  viewport.style.paddingLeft = '';
   if (state.fitted) {
+    const pageHeightPx = 297 * 96 / 25.4;
     const toolbarHeight = 60;
     const padding = 40;
     const fmtPanel = document.querySelector('.format-panel');
     const panelWidth = (fmtPanel && fmtPanel.classList.contains('hidden')) ? 0 : 280;
     const availW = window.innerWidth - panelWidth - padding * 2;
     const availH = window.innerHeight - toolbarHeight - padding;
-    const scale = Math.min(availW / pageWidthPx, availH / pageHeightPx, 1);
+    const scale = Math.min(availW / PAGE_WIDTH_PX, availH / pageHeightPx, 1);
     viewport.style.transform = 'scale(' + scale + ')';
     viewport.style.transformOrigin = 'top center';
     viewport.style.height = (pageHeightPx * scale + toolbarHeight + padding) + 'px';
@@ -50,7 +37,7 @@ function applyFit() {
   }
 }
 
-/* On a phone the format panel starts closed: it would cover the page */
+/* On a phone the format panel starts closed and the Editor comes first */
 function initPhoneLayout() {
   if (!isPhoneLayout()) return;
   state.formatPanelMinimized = true;
@@ -58,6 +45,51 @@ function initPhoneLayout() {
   document.getElementById('viewport').classList.add('full-width');
   document.getElementById('format-toggle').innerHTML = '&#x25B6;';
 }
+
+/* ── Phone: the CV card and the full-screen CV ── */
+
+/* The card's thumbnail is a copy of page 1, without ids so nothing finds it instead of the real page */
+function renderPhoneCard() {
+  const frame = document.getElementById('phone-cv-thumb-frame');
+  if (!isPhoneLayout()) { frame.replaceChildren(); return; }
+  const clone = document.getElementById('page').cloneNode(true);
+  clone.removeAttribute('id');
+  clone.querySelectorAll('[id]').forEach(function(el) { el.removeAttribute('id'); });
+  /* As large as fits between the tab bar, the name and button below, and the toolbar */
+  const width = Math.max(160, Math.min(300, window.innerWidth - 32, (window.innerHeight - 300) / Math.SQRT2));
+  const scale = width / PAGE_WIDTH_PX;
+  clone.style.cssText = 'transform:scale(' + scale + ')';
+  frame.style.width = width + 'px';
+  frame.style.height = (width * Math.SQRT2) + 'px';
+  frame.replaceChildren(clone);
+  const pages = state.totalPages === 1 ? '1 page' : state.totalPages + ' pages';
+  document.getElementById('phone-cv-name').textContent = state.showingTemplate ? 'Blank template' : (state.currentName || 'Your CV');
+  document.getElementById('phone-cv-pages').textContent = 'A4 · ' + pages;
+  document.getElementById('cv-full-title').textContent = pages;
+}
+
+function isCvFullscreen() { return document.body.classList.contains('cv-full-open'); }
+
+/* The phone's Back button closes the full-screen CV instead of leaving Blatt */
+function openCvFullscreen() {
+  if (isCvFullscreen()) return;
+  applyFit();
+  document.body.classList.add('cv-full-open');
+  document.getElementById('viewport').classList.add('cv-full');
+  document.getElementById('viewport').scrollTop = 0;
+  history.pushState({ blattCvFull: true }, '');
+}
+
+function closeCvFullscreen(fromHistory) {
+  if (!isCvFullscreen()) return;
+  if (!state.formatPanelMinimized) toggleFormatPanel();
+  document.body.classList.remove('cv-full-open');
+  document.getElementById('viewport').classList.remove('cv-full');
+  renderPhoneCard();
+  if (!fromHistory && history.state && history.state.blattCvFull) history.back();
+}
+
+window.addEventListener('popstate', function() { closeCvFullscreen(true); });
 
 function toggleFit() {
   state.fitted = !state.fitted;
@@ -67,10 +99,19 @@ function toggleFit() {
   applyFit();
 }
 
+/* A phone's address bar showing or hiding resizes the window too: only a new width
+   (turning the phone) redraws the card */
+var lastWidth = window.innerWidth;
 window.addEventListener('resize', function() {
-  if (state.fitted) applyFit();
+  if (state.fitted || isPhoneLayout()) applyFit();
+  if (isPhoneLayout() && window.innerWidth !== lastWidth) renderPhoneCard();
+  lastWidth = window.innerWidth;
 });
-PHONE_QUERY.addEventListener('change', function() { applyFit(); });
+PHONE_QUERY.addEventListener('change', function() {
+  if (!isPhoneLayout()) closeCvFullscreen();
+  applyFit();
+  renderPhoneCard();
+});
 
 /* ================================================================
  *  PAGE NAVIGATION -- Multi-page browsing
@@ -90,6 +131,7 @@ function updatePageNav() {
   pages.forEach(function(p, i) {
     p.style.display = (i + 1 === state.currentPage) ? '' : 'none';
   });
+  renderPhoneCard();
 }
 
 function goToPage(n) {
@@ -108,25 +150,6 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowRight') { e.preventDefault(); goToPage(state.currentPage + 1); }
 });
 
-/* Swipe left or right on the fitted page to turn it. Not while pinch-zoomed in:
-   then a swipe pans the zoomed page. */
-(function() {
-  var start = null;
-  var viewport = document.getElementById('viewport');
-  viewport.addEventListener('touchstart', function(e) {
-    start = e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
-  }, { passive: true });
-  viewport.addEventListener('touchend', function(e) {
-    if (!start || !state.fitted || state.totalPages <= 1) return;
-    if (window.visualViewport && window.visualViewport.scale > 1.05) return;
-    var dx = e.changedTouches[0].clientX - start.x;
-    var dy = e.changedTouches[0].clientY - start.y;
-    start = null;
-    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-    goToPage(state.currentPage + (dx < 0 ? 1 : -1));
-  });
-})();
-
 /* ================================================================
  *  TEMPLATE TOGGLE -- Switch between user data and blank template
  * ================================================================ */
@@ -143,4 +166,5 @@ function toggleTemplate() {
     btn.classList.add('active');
   }
   state.showingTemplate = !state.showingTemplate;
+  renderPhoneCard();
 }

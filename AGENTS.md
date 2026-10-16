@@ -70,7 +70,7 @@ src/
 | `ats-checks.js`, `ats-reading.js`, `ats-job.js` | ATS tab: checks, reading-order preview, job ad match | -- |
 | `download.js` | Download modal, Text PDF (`printCV()`), Image PDF (`confirmDownload()`, loads `app/vendor/html2pdf`) | -- |
 | `library.js` | Configuration (gear at the right of the tab bar): CV versions, designs, backups | -- |
-| `view.js` | Fit to screen (phone fit included), page navigation and swipe, template toggle, `isPhoneLayout()` | -- |
+| `view.js` | Fit to screen, page navigation, template toggle; phones: `isPhoneLayout()`, the CV card and full-screen CV | -- |
 | `photo.js` | One stored photo: crop stage, B&W, `renderPhoto()` | -- |
 | `format.js`, `format-presets.js` | `FORMAT_SCHEMA`, `applyFormat()`, format panel; design presets | -- |
 | `sync.js` | Mirrors all `cv-*` localStorage keys to a Blatt server, only when one answers `api/data` | `state.sync` |
@@ -232,11 +232,16 @@ ATS checks**. Commands: `getCV`, `setCV(markdown, { asNewVersion })`, `atsCheck`
 The phone layout is meant for the served app (self-hosting): a zip opened from disk
 can't run on a phone. It is one block at the end of `app/css/app.css`, at
 `max-width: 760px` -- the same query as `isPhoneLayout()` in view.js, so keep the two
-in step. On a phone the preview actions become a toolbar along the bottom (with a
-Format button, `.phone-only`; "Edit with AI" is `.phone-hidden`), the format panel is a
-bottom sheet that starts closed, and `applyFit()` scales the page from its top left
-corner to sit between the tab bar and the toolbar or the open sheet. Swiping turns the
-page; pinch zoom is the browser's own.
+in step. Phones open on the Editor. The Preview tab shows a card instead of the page:
+a thumbnail of page 1 (`renderPhoneCard()`: a copy without ids, so nothing finds it
+instead of the real page; it lives after `#viewport`, and render.js looks the page parts
+up inside `#viewport`). Tapping it opens the CV full screen (`openCvFullscreen()`):
+`#viewport` becomes a fixed, scrolling layer with every page at the screen's width
+(`zoom: var(--cv-full-zoom)`, set by `applyFit()`), and the phone's Back button closes
+it (a history entry). The preview actions become a toolbar along the bottom (with a
+Format button, `.phone-only`; "Edit with AI" is `.phone-hidden`). The format panel is a
+bottom sheet that starts closed; opening it opens the full-screen CV, which then ends
+above the sheet, so changes show live. Pinch zoom is the browser's own.
 
 Touch screens (`hover: none`) get ▲▼ buttons (`moveButtons()`, `.ed-touch-only`) in
 place of the drag handles, since HTML5 drag & drop is unreliable with fingers. A

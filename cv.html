@@ -299,6 +299,25 @@ Detail: [Thesis: Title of your thesis – Lorem ipsum dolor sit amet]
   </div>
 </div>
 
+<!-- Phones: the Preview tab shows this card instead of the page; tapping it opens the CV full screen (view.js) -->
+<div class="phone-cv" id="phone-cv" role="region" aria-label="Your CV">
+  <!-- Not a <button>: the page copy inside would take on a button's text styles -->
+  <div class="phone-cv-thumb" role="button" tabindex="0" onclick="openCvFullscreen()" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openCvFullscreen(); }" aria-label="Open your CV full screen">
+    <div class="phone-cv-thumb-frame" id="phone-cv-thumb-frame" aria-hidden="true" inert></div>
+  </div>
+  <div class="phone-cv-meta">
+    <strong id="phone-cv-name"></strong>
+    <span id="phone-cv-pages"></span>
+  </div>
+  <button class="phone-cv-open" onclick="openCvFullscreen()">View full screen</button>
+</div>
+<!-- Phones: the bar over the full-screen CV -->
+<div class="cv-full-bar" id="cv-full-bar">
+  <button class="cv-full-close" onclick="closeCvFullscreen()" aria-label="Close full screen">&times;</button>
+  <span class="cv-full-title" id="cv-full-title"></span>
+  <button class="cv-full-format" onclick="toggleFormatPanel()">Format</button>
+</div>
+
 <!-- Editor view -->
 <div class="editor-view" id="editor-view" role="region" aria-label="Editor"></div>
 

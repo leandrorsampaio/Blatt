@@ -74,4 +74,5 @@ state.currentMD = getDefaultMD();
 initPhoneLayout();
 renderCV(state.currentMD);
 applyFit();
+if (isPhoneLayout()) switchTab('editor');
 initServerSync();
